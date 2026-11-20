@@ -40,9 +40,12 @@ def render_font(path: str) -> np.ndarray | None:
     clipped_ink = 0
     for i, c in enumerate(CHARS):
         img = Image.new("L", (big, big), 0)
-        ImageDraw.Draw(img).text(
-            (CENTER_COL + _PAD, BASELINE_ROW + _PAD), c, fill=255, font=font, anchor="ms"
-        )
+        try:
+            ImageDraw.Draw(img).text(
+                (CENTER_COL + _PAD, BASELINE_ROW + _PAD), c, fill=255, font=font, anchor="ms"
+            )
+        except Exception:  
+            return None
         a = np.asarray(img, dtype=np.uint8)
         inside = a[_PAD:_PAD + SIZE, _PAD:_PAD + SIZE]
         total = int(a.sum(dtype=np.int64))
