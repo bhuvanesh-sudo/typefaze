@@ -1,6 +1,7 @@
 // In-browser flow-matching sampler. The style encoder runs once; then the exported one-step U-Net is
 // called `steps` times in an Euler loop: x <- x + dt * v(x, t, letter, style), from noise (t=0) to glyph (t=1).
 
+import { fetchWithProgress } from "./download";
 import type { Generator } from "./generator";
 import { ALL_CHARS } from "./generator";
 import { REF_CHARS, SIZE, charId, type GlyphBitmap, type RefSet } from "./glyphs";
@@ -13,7 +14,11 @@ export interface SessionLike {
 export type SessionFactory = (url: string, ep: Backend) => Promise<SessionLike>;
 type Assets = { nullStyle: Float32Array; steps: number; wasmSteps: number; cfg: number };
 
-export type OnnxGenerator = Generator & { backend: () => Backend | null };
+export type OnnxGenerator = Generator & {
+  backend: () => Backend | null;
+  /** Start downloading and loading the model now; Generate reuses the result. */
+  warmUp: () => Promise<void>;
+};
 
 const PIX = SIZE * SIZE;
 
@@ -68,12 +73,14 @@ export function createOnnxGenerator(opts: {
     throw new Error(`Could not start the model: ${String(lastErr)}`);
   };
 
-  const gen = (async (refs: RefSet, chars: number[] = ALL_CHARS) => {
-    ready ??= open().catch((e) => {
+  const load = () =>
+    (ready ??= open().catch((e) => {
       ready = null; // allow a retry
       throw e;
-    });
-    const { enc, unet, assets } = await ready;
+    }));
+
+  const gen = (async (refs: RefSet, chars: number[] = ALL_CHARS) => {
+    const { enc, unet, assets } = await load();
     const seed = 1000 + calls++;
 
     const refData = new Float32Array(5 * PIX);
@@ -117,12 +124,39 @@ export function createOnnxGenerator(opts: {
     return out;
   }) as OnnxGenerator;
   gen.backend = () => backend;
+  gen.warmUp = async () => void (await load());
   return gen;
 }
 
 /** The real thing: ONNX Runtime Web, model files served from the site's /models folder. */
-export function createBrowserOnnxGenerator(onProgress?: (done: number, total: number) => void): OnnxGenerator {
+export function createBrowserOnnxGenerator(
+  onProgress?: (done: number, total: number) => void,
+  onDownload?: (loaded: number, total: number | null) => void,
+): OnnxGenerator {
   const base = import.meta.env.BASE_URL;
+  // Model files are downloaded once (a WebGPU -> WASM fallback reuses the bytes), and progress is
+  // summed across files so the page can show one "x / y MB".
+  const files = new Map<string, Promise<Uint8Array>>();
+  const progress = new Map<string, { loaded: number; total: number | null }>();
+  const report = () => {
+    let loaded = 0, total = 0, known = true;
+    for (const p of progress.values()) {
+      loaded += p.loaded;
+      if (p.total === null) known = false;
+      else total += p.total;
+    }
+    onDownload?.(loaded, known ? total : null);
+  };
+  const bytes = (url: string) => {
+    if (!files.has(url)) {
+      progress.set(url, { loaded: 0, total: null });
+      files.set(url, fetchWithProgress(url, (loaded, total) => (progress.set(url, { loaded, total }), report())).catch((e) => {
+        files.delete(url);
+        throw e;
+      }));
+    }
+    return files.get(url)!;
+  };
   return createOnnxGenerator({
     baseUrl: base,
     onProgress,
@@ -135,7 +169,7 @@ export function createBrowserOnnxGenerator(onProgress?: (done: number, total: nu
     },
     createSession: async (url, ep) => {
       const ort = await import("onnxruntime-web/webgpu");
-      const session = await ort.InferenceSession.create(url, { executionProviders: [ep] });
+      const session = await ort.InferenceSession.create(await bytes(url), { executionProviders: [ep] });
       return {
         async run(feeds) {
           const t: Record<string, InstanceType<typeof ort.Tensor>> = {};

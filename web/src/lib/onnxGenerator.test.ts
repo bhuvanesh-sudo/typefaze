@@ -93,6 +93,35 @@ describe("onnxGenerator", () => {
     for (const i of [0, 100, 4095]) expect(g[i]).toBeCloseTo(Math.max(-1, Math.min(1, noise[i] + 0.75)), 5);
   });
 
+  it("warmUp loads the model once in the background, and Generate reuses it", async () => {
+    let created = 0;
+    const gen = createOnnxGenerator({
+      hasWebGPU: () => false,
+      loadAssets: assets,
+      createSession: async (url) => (created++, fakeSession(url)),
+    });
+    await gen.warmUp();
+    expect(created).toBe(2);
+    expect(gen.backend()).toBe("wasm");
+    await gen(refs, [0]);
+    expect(created).toBe(2);
+  });
+
+  it("a failed warmUp can be retried by Generate", async () => {
+    let fail = true;
+    const gen = createOnnxGenerator({
+      hasWebGPU: () => false,
+      loadAssets: async () => {
+        if (fail) throw new Error("offline");
+        return assets();
+      },
+      createSession: async (url) => fakeSession(url),
+    });
+    await expect(gen.warmUp()).rejects.toThrow("offline");
+    fail = false;
+    expect(await gen(refs, [0])).toHaveLength(1);
+  });
+
   it("draws reproducible Gaussian noise from a seed", () => {
     const a = seededNormal(4096, 42), b = seededNormal(4096, 42), c = seededNormal(4096, 43);
     expect(Array.from(a)).toEqual(Array.from(b));

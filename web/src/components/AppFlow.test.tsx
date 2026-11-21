@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const buildSpy = vi.hoisted(() => ({ calls: [] as string[] }));
 
+const warm = vi.hoisted(() => ({ calls: 0, release: null as null | (() => void) }));
+
 vi.mock("../lib/onnxGenerator", () => ({
-  createBrowserOnnxGenerator: () => {
+  createBrowserOnnxGenerator: (_onStep: unknown, onDownload?: (loaded: number, total: number | null) => void) => {
     const g = async (_refs: unknown, chars?: number[]) =>
       (chars ?? Array.from({ length: 52 }, (_, i) => i)).map(() => {
         const a = new Float32Array(4096).fill(-1);
@@ -12,6 +14,11 @@ vi.mock("../lib/onnxGenerator", () => ({
         return a;
       });
     g.backend = () => "wasm";
+    g.warmUp = () => {
+      warm.calls++;
+      onDownload?.(5_000_000, 27_300_000);
+      return new Promise<void>((r) => (warm.release = () => (onDownload?.(27_300_000, 27_300_000), r())));
+    };
     return g;
   },
 }));
@@ -35,6 +42,8 @@ describe("App generate -> name -> download", () => {
   const created: string[] = [];
   const revoked: string[] = [];
   beforeEach(() => {
+    warm.calls = 0;
+    warm.release = null;
     buildSpy.calls.length = 0;
     URL.createObjectURL = vi.fn(() => {
       const u = `blob:${created.length}`;
@@ -62,6 +71,14 @@ describe("App generate -> name -> download", () => {
     expect(created).toHaveLength(1);
     await act(async () => new Promise((r) => setTimeout(r, 1100)));
     expect(revoked).toEqual(created);
+  });
+
+  it("starts downloading the model as soon as the page opens, with progress", async () => {
+    render(<App />);
+    expect(warm.calls).toBe(1);
+    expect(screen.getByText(/5\.0 \/ 27\.3 MB/)).toBeInTheDocument();
+    await act(async () => warm.release?.());
+    expect(screen.getByText(/model ready/i)).toBeInTheDocument();
   });
 
   it("says so when a drawn letter is too small to read", async () => {

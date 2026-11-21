@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildFont } from "../lib/fontBuild";
 import { baselineGenerator, type Generator } from "../lib/generator";
 import { createBrowserOnnxGenerator, type OnnxGenerator } from "../lib/onnxGenerator";
@@ -22,11 +22,31 @@ export default function App() {
   const [mode, setMode] = useState<"model" | "baseline">("model");
   const [progress, setProgress] = useState<string | null>(null);
   const onnx = useRef<OnnxGenerator | null>(null);
-  const getGenerator = (): Generator => {
-    if (mode === "baseline") return baselineGenerator;
-    onnx.current ??= createBrowserOnnxGenerator((done, total) => setProgress(`Step ${done} of ${total}`));
-    return onnx.current;
-  };
+  const [modelStatus, setModelStatus] = useState<string>("Downloading the model…");
+  const getOnnx = () =>
+    (onnx.current ??= createBrowserOnnxGenerator(
+      (done, total) => setProgress(`Step ${done} of ${total}`),
+      (loaded, total) => {
+        const mb = (n: number) => (n / 1e6).toFixed(1);
+        if (total && loaded >= total) setModelStatus("Model downloaded. Starting it up…");
+        else setModelStatus(total ? `Downloading the model: ${mb(loaded)} / ${mb(total)} MB` : `Downloading the model: ${mb(loaded)} MB`);
+      },
+    ));
+  const getGenerator = (): Generator => (mode === "baseline" ? baselineGenerator : getOnnx());
+
+  // Start fetching the model the moment the page opens, so it's usually ready by the time
+  // five letters are drawn. Generate waits for the same download instead of starting another.
+  useEffect(() => {
+    let live = true;
+    getOnnx()
+      .warmUp()
+      .then(() => live && setModelStatus("Model ready."))
+      .catch(() => live && setModelStatus("Couldn't download the model yet. It will retry when you press Generate."));
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onChange = useCallback((letter: RefChar, glyph: GlyphBitmap | null, wasClipped: boolean, small = false) => {
     setTooSmall((t) => ({ ...t, [letter]: small }));
@@ -58,7 +78,7 @@ export default function App() {
     if (!ready) return;
     setBusy(true);
     setError(null);
-    setProgress(mode === "model" && !onnx.current ? "Downloading the model (about 27 MB, first time only)…" : null);
+    setProgress(null);
     const started = performance.now();
     try {
       const out = await getGenerator()(refs as RefSet, chars);
@@ -151,6 +171,7 @@ export default function App() {
           Compare: use the nearest existing font instead of the model
         </label>
         {!ready && <p className="hint">Still to draw: {missing.join(", ")}</p>}
+        {mode === "model" && <p className="hint" aria-live="polite">{modelStatus}</p>}
         {progress && <p className="hint" aria-live="polite">{progress}</p>}
         {glyphs && (
           <>
