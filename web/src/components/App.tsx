@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildFont } from "../lib/fontBuild";
 import { baselineGenerator, type Generator } from "../lib/generator";
-import { createModelGenerator } from "../lib/modelWorkerClient";
 import { createBrowserOnnxGenerator, type OnnxGenerator } from "../lib/onnxGenerator";
 import { REF_CHARS, type GlyphBitmap, type RefChar, type RefSet } from "../lib/glyphs";
 import { fontFileToRefs } from "../lib/normalize";
@@ -24,18 +23,15 @@ export default function App() {
   const [progress, setProgress] = useState<string | null>(null);
   const onnx = useRef<OnnxGenerator | null>(null);
   const [modelStatus, setModelStatus] = useState<string>("Downloading the model…");
-  const getOnnx = () => {
-    if (onnx.current) return onnx.current;
-    const onProgress = (done: number, total: number) => setProgress(`Step ${done} of ${total}`);
-    const onDownload = (loaded: number, total: number | null) => {
-      const mb = (n: number) => (n / 1e6).toFixed(1);
-      if (total && loaded >= total) setModelStatus("Model downloaded. Starting it up…");
-      else setModelStatus(total ? `Downloading the model: ${mb(loaded)} / ${mb(total)} MB` : `Downloading the model: ${mb(loaded)} MB`);
-    };
-    // The model runs in a background worker so the page stays responsive while it loads and generates.
-    onnx.current = createModelGenerator({ onProgress, onDownload, inPage: () => createBrowserOnnxGenerator(onProgress, onDownload) });
-    return onnx.current;
-  };
+  const getOnnx = () =>
+    (onnx.current ??= createBrowserOnnxGenerator(
+      (done, total) => setProgress(`Step ${done} of ${total}`),
+      (loaded, total) => {
+        const mb = (n: number) => (n / 1e6).toFixed(1);
+        if (total && loaded >= total) setModelStatus("Model downloaded. Starting it up…");
+        else setModelStatus(total ? `Downloading the model: ${mb(loaded)} / ${mb(total)} MB` : `Downloading the model: ${mb(loaded)} MB`);
+      },
+    ));
   const getGenerator = (): Generator => (mode === "baseline" ? baselineGenerator : getOnnx());
 
   // Start fetching the model the moment the page opens, so it's usually ready by the time
