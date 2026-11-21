@@ -1,7 +1,5 @@
 # Running TypeFaze on Kaggle
 
-Replace `YOUR_GITHUB_USERNAME` below with your GitHub username. The TypeFaze repo must be pushed and public.
-
 ## Notebook 1: build the dataset (Task 3, ~10–20 min, no GPU needed)
 
 New notebook → **Settings: Internet ON, Accelerator: None**. Run these cells in order.
@@ -16,7 +14,7 @@ Expect roughly 1,500+ family folders.
 
 **Cell 2: install TypeFaze**
 ```bash
-!git clone https://github.com/YOUR_GITHUB_USERNAME/typefaze /kaggle/temp/typefaze
+!git clone https://github.com/bhuvanesh-sudo/typefaze /kaggle/temp/typefaze
 !pip install -q -e /kaggle/temp/typefaze
 ```
 
@@ -48,7 +46,7 @@ New notebook → **Settings: Internet ON, Accelerator: GPU T4 x1** (or P100). **
 
 **Cell 1: install**
 ```bash
-!git clone https://github.com/YOUR_GITHUB_USERNAME/typefaze /kaggle/temp/typefaze
+!git clone https://github.com/bhuvanesh-sudo/typefaze /kaggle/temp/typefaze
 !pip install -q -e /kaggle/temp/typefaze
 !nvidia-smi --query-gpu=name,memory.total --format=csv
 ```
