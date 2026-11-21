@@ -29,6 +29,17 @@ def test_baseline_convention():
     assert abs((cols.min() + cols.max()) / 2 - 32) <= 3  # centred
 
 
+def test_font_that_crashes_while_drawing_returns_none(monkeypatch):
+    # Real case on Kaggle: FreeType raised "OSError: execution context too long" mid-render.
+    from PIL import ImageDraw
+
+    def boom(self, *a, **k):
+        raise OSError("execution context too long")
+
+    monkeypatch.setattr(ImageDraw.ImageDraw, "text", boom)
+    assert render_font(FIXTURE) is None
+
+
 def test_missing_glyph_returns_none(tmp_path):
     p = tmp_path / "bad.ttf"
     p.write_bytes(b"nope")

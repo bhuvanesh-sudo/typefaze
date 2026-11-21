@@ -44,7 +44,7 @@ def render_font(path: str) -> np.ndarray | None:
             ImageDraw.Draw(img).text(
                 (CENTER_COL + _PAD, BASELINE_ROW + _PAD), c, fill=255, font=font, anchor="ms"
             )
-        except Exception:  
+        except Exception:  # broken hinting/outlines in some fonts, e.g. FreeType errors
             return None
         a = np.asarray(img, dtype=np.uint8)
         inside = a[_PAD:_PAD + SIZE, _PAD:_PAD + SIZE]
