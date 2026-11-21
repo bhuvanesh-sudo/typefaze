@@ -1,0 +1,1312 @@
+[
+ {
+  "font": "alkatra/Alkatra[wght].ttf",
+  "family": "alkatra",
+  "sibling_in_train": false,
+  "nearest_train_font": "niramit/Niramit-MediumItalic.ttf",
+  "gen_ssim": 0.8822326689703345,
+  "gen_l1": 0.029212948370804178,
+  "base_ssim": 0.8617919580417378,
+  "base_l1": 0.03662543292058275
+ },
+ {
+  "font": "amiko/Amiko-Bold.ttf",
+  "family": "amiko",
+  "sibling_in_train": false,
+  "nearest_train_font": "sansation/Sansation-Bold.ttf",
+  "gen_ssim": 0.9198417542966477,
+  "gen_l1": 0.0178646975038375,
+  "base_ssim": 0.89915014762744,
+  "base_l1": 0.023883308858630506
+ },
+ {
+  "font": "amiko/Amiko-Regular.ttf",
+  "family": "amiko",
+  "sibling_in_train": false,
+  "nearest_train_font": "telex/Telex-Regular.ttf",
+  "gen_ssim": 0.9194563427799403,
+  "gen_l1": 0.019881296759233513,
+  "base_ssim": 0.932294134033207,
+  "base_l1": 0.017782502342015505
+ },
+ {
+  "font": "amiko/Amiko-SemiBold.ttf",
+  "family": "amiko",
+  "sibling_in_train": false,
+  "nearest_train_font": "telex/Telex-Regular.ttf",
+  "gen_ssim": 0.9404749077983893,
+  "gen_l1": 0.014881414975574676,
+  "base_ssim": 0.9217048429868885,
+  "base_l1": 0.020319018522871934
+ },
+ {
+  "font": "aneklatin/AnekLatin[wdth,wght].ttf",
+  "family": "aneklatin",
+  "sibling_in_train": false,
+  "nearest_train_font": "anekbangla/AnekBangla[wdth,wght].ttf",
+  "gen_ssim": 0.9435594546636097,
+  "gen_l1": 0.01453825341973533,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "antonsc/AntonSC-Regular.ttf",
+  "family": "antonsc",
+  "sibling_in_train": true,
+  "nearest_train_font": "anton/Anton-Regular.ttf",
+  "gen_ssim": 0.8524766695349346,
+  "gen_l1": 0.03507126421925235,
+  "base_ssim": 0.9132361557302601,
+  "base_l1": 0.023083032564596928
+ },
+ {
+  "font": "arbutus/Arbutus-Regular.ttf",
+  "family": "arbutus",
+  "sibling_in_train": false,
+  "nearest_train_font": "tienne/Tienne-Black.ttf",
+  "gen_ssim": 0.8203834270413775,
+  "gen_l1": 0.040970789387505105,
+  "base_ssim": 0.7840857138785936,
+  "base_l1": 0.05217465449203836
+ },
+ {
+  "font": "arefruqaa/ArefRuqaa-Bold.ttf",
+  "family": "arefruqaa",
+  "sibling_in_train": false,
+  "nearest_train_font": "arefruqaaink/ArefRuqaaInk-Bold.ttf",
+  "gen_ssim": 0.8194034150771643,
+  "gen_l1": 0.041122224122444366,
+  "base_ssim": 0.9999507316361723,
+  "base_l1": 3.3998390326234315e-05
+ },
+ {
+  "font": "arefruqaa/ArefRuqaa-Regular.ttf",
+  "family": "arefruqaa",
+  "sibling_in_train": false,
+  "nearest_train_font": "arefruqaaink/ArefRuqaaInk-Regular.ttf",
+  "gen_ssim": 0.8432266434525292,
+  "gen_l1": 0.03465786498991099,
+  "base_ssim": 0.9999539390444867,
+  "base_l1": 5.6609663193314115e-05
+ },
+ {
+  "font": "arimo/Arimo-Italic[wght].ttf",
+  "family": "arimo",
+  "sibling_in_train": false,
+  "nearest_train_font": "k2d/K2D-LightItalic.ttf",
+  "gen_ssim": 0.908083569055716,
+  "gen_l1": 0.0214847009728088,
+  "base_ssim": 0.8851789395186338,
+  "base_l1": 0.028347486848051242
+ },
+ {
+  "font": "arimo/Arimo[wght].ttf",
+  "family": "arimo",
+  "sibling_in_train": false,
+  "nearest_train_font": "tharlon/Tharlon-Regular.ttf",
+  "gen_ssim": 0.8939087842801403,
+  "gen_l1": 0.02742796157922675,
+  "base_ssim": 0.9770578931586192,
+  "base_l1": 0.007236992171222463
+ },
+ {
+  "font": "armata/Armata-Regular.ttf",
+  "family": "armata",
+  "sibling_in_train": false,
+  "nearest_train_font": "sintony/Sintony-Regular.ttf",
+  "gen_ssim": 0.9128141536480118,
+  "gen_l1": 0.022497196899766616,
+  "base_ssim": 0.8924565189501127,
+  "base_l1": 0.027805488497177337
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-Bold.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "idiqlat/Idiqlat-ExtraLight.ttf",
+  "gen_ssim": 0.9116706383604114,
+  "gen_l1": 0.0201344617365047,
+  "base_ssim": 0.8880298635222612,
+  "base_l1": 0.027071029482845295
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-BoldItalic.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "averialibre/AveriaLibre-BoldItalic.ttf",
+  "gen_ssim": 0.9085994764856046,
+  "gen_l1": 0.021287432891574313,
+  "base_ssim": 0.9141715243872592,
+  "base_l1": 0.019490895971180276
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-Italic.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "averialibre/AveriaLibre-Italic.ttf",
+  "gen_ssim": 0.914453856955913,
+  "gen_l1": 0.02009577813379942,
+  "base_ssim": 0.9254312294943859,
+  "base_l1": 0.017289291433197386
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-Light.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "vollkorn/Vollkorn[wght].ttf",
+  "gen_ssim": 0.9109978472455027,
+  "gen_l1": 0.020309831392257772,
+  "base_ssim": 0.9153024245352103,
+  "base_l1": 0.02085728905203336
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-LightItalic.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "newsreader/Newsreader-Italic[opsz,wght].ttf",
+  "gen_ssim": 0.9073919132310336,
+  "gen_l1": 0.02069281761911004,
+  "base_ssim": 0.8480777155572121,
+  "base_l1": 0.03630378251855678
+ },
+ {
+  "font": "averiaseriflibre/AveriaSerifLibre-Regular.ttf",
+  "family": "averiaseriflibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "charissil/CharisSIL-Regular.ttf",
+  "gen_ssim": 0.908609502751363,
+  "gen_l1": 0.020267766375253175,
+  "base_ssim": 0.9062816285289006,
+  "base_l1": 0.02379834330937964
+ },
+ {
+  "font": "bbhbartle/BBHBartle-Regular.ttf",
+  "family": "bbhbartle",
+  "sibling_in_train": false,
+  "nearest_train_font": "sekuya/Sekuya-Regular.ttf",
+  "gen_ssim": 0.5871830152513711,
+  "gen_l1": 0.12364373094540962,
+  "base_ssim": 0.5471409284723897,
+  "base_l1": 0.17554902364598943
+ },
+ {
+  "font": "bigshotone/BigshotOne-Regular.ttf",
+  "family": "bigshotone",
+  "sibling_in_train": false,
+  "nearest_train_font": "gentiumbookplus/GentiumBookPlus-Bold.ttf",
+  "gen_ssim": 0.8745496756376979,
+  "gen_l1": 0.029459431826909806,
+  "base_ssim": 0.8712630161143864,
+  "base_l1": 0.03249730700825123
+ },
+ {
+  "font": "bigshoulders/BigShoulders[opsz,wght].ttf",
+  "family": "bigshoulders",
+  "sibling_in_train": true,
+  "nearest_train_font": "bigshouldersdisplay/BigShouldersDisplay[wght].ttf",
+  "gen_ssim": 0.9110453720634771,
+  "gen_l1": 0.015536836467366269,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "bitcountink/BitcountInk[CRSV,ELSH,ELXP,SZP1,SZP2,XPN1,XPN2,YPN1,YPN2,slnt,wght].ttf",
+  "family": "bitcountink",
+  "sibling_in_train": false,
+  "nearest_train_font": "bitcount/Bitcount[CRSV,ELSH,ELXP,slnt,wght].ttf",
+  "gen_ssim": 0.8858330730616798,
+  "gen_l1": 0.019871519170107044,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "bitcountsingle/BitcountSingle[CRSV,ELSH,ELXP,slnt,wght].ttf",
+  "family": "bitcountsingle",
+  "sibling_in_train": false,
+  "nearest_train_font": "bitcountgridsingle/BitcountGridSingle[CRSV,ELSH,ELXP,slnt,wght].ttf",
+  "gen_ssim": 0.8826647902369926,
+  "gen_l1": 0.01974114797454565,
+  "base_ssim": 0.994686409723274,
+  "base_l1": 0.0013394224992457856
+ },
+ {
+  "font": "bitcountsingleink/BitcountSingleInk[CRSV,ELSH,ELXP,SZP1,SZP2,XPN1,XPN2,YPN1,YPN2,slnt,wght].ttf",
+  "family": "bitcountsingleink",
+  "sibling_in_train": false,
+  "nearest_train_font": "bitcountgridsingle/BitcountGridSingle[CRSV,ELSH,ELXP,slnt,wght].ttf",
+  "gen_ssim": 0.8698025131403024,
+  "gen_l1": 0.02004197963136942,
+  "base_ssim": 0.994686409723274,
+  "base_l1": 0.0013394224992457856
+ },
+ {
+  "font": "bonanovasc/BonaNovaSC-Bold.ttf",
+  "family": "bonanovasc",
+  "sibling_in_train": true,
+  "nearest_train_font": "vollkornsc/VollkornSC-Bold.ttf",
+  "gen_ssim": 0.8463753769755197,
+  "gen_l1": 0.033802018441418384,
+  "base_ssim": 0.8643758582440325,
+  "base_l1": 0.03319507865037056
+ },
+ {
+  "font": "bonanovasc/BonaNovaSC-Italic.ttf",
+  "family": "bonanovasc",
+  "sibling_in_train": true,
+  "nearest_train_font": "spectralsc/SpectralSC-Light.ttf",
+  "gen_ssim": 0.85034105503093,
+  "gen_l1": 0.03320224900194939,
+  "base_ssim": 0.8520569405524115,
+  "base_l1": 0.034352388926484484
+ },
+ {
+  "font": "bonanovasc/BonaNovaSC-Regular.ttf",
+  "family": "bonanovasc",
+  "sibling_in_train": true,
+  "nearest_train_font": "spectralsc/SpectralSC-Light.ttf",
+  "gen_ssim": 0.8806134466123748,
+  "gen_l1": 0.026569201809136158,
+  "base_ssim": 0.8846722940285818,
+  "base_l1": 0.027566012975938144
+ },
+ {
+  "font": "breeserif/BreeSerif-Regular.ttf",
+  "family": "breeserif",
+  "sibling_in_train": false,
+  "nearest_train_font": "amaranth/Amaranth-Regular.ttf",
+  "gen_ssim": 0.9179130510219132,
+  "gen_l1": 0.020481249297711442,
+  "base_ssim": 0.8625561338225931,
+  "base_l1": 0.03516148522179177
+ },
+ {
+  "font": "castorotitling/CastoroTitling-Regular.ttf",
+  "family": "castorotitling",
+  "sibling_in_train": false,
+  "nearest_train_font": "aboreto/Aboreto-Regular.ttf",
+  "gen_ssim": 0.8640660847289935,
+  "gen_l1": 0.03066925669802313,
+  "base_ssim": 0.8405051615099205,
+  "base_l1": 0.03468758525683525
+ },
+ {
+  "font": "changa/Changa[wght].ttf",
+  "family": "changa",
+  "sibling_in_train": false,
+  "nearest_train_font": "sairasemicondensed/SairaSemiCondensed-Medium.ttf",
+  "gen_ssim": 0.857320333008817,
+  "gen_l1": 0.03301856789658678,
+  "base_ssim": 0.9033979745167925,
+  "base_l1": 0.02493434558880139
+ },
+ {
+  "font": "claritycity/ClarityCity-Italic[wght].ttf",
+  "family": "claritycity",
+  "sibling_in_train": false,
+  "nearest_train_font": "nevermind/Nevermind-Italic[wght].ttf",
+  "gen_ssim": 0.9163298674330118,
+  "gen_l1": 0.020882609523238338,
+  "base_ssim": 0.9040857528473782,
+  "base_l1": 0.024268413428217173
+ },
+ {
+  "font": "claritycity/ClarityCity[wght].ttf",
+  "family": "claritycity",
+  "sibling_in_train": false,
+  "nearest_train_font": "kripa/Kripa[wght].ttf",
+  "gen_ssim": 0.9303975352557141,
+  "gen_l1": 0.017115306872081883,
+  "base_ssim": 0.8960910624892799,
+  "base_l1": 0.026027712951156686
+ },
+ {
+  "font": "cuprum/Cuprum-Italic[wght].ttf",
+  "family": "cuprum",
+  "sibling_in_train": false,
+  "nearest_train_font": "economica/Economica-Italic.ttf",
+  "gen_ssim": 0.923634282369579,
+  "gen_l1": 0.020192639872511017,
+  "base_ssim": 0.8591725583477743,
+  "base_l1": 0.0365627933135058
+ },
+ {
+  "font": "cuprum/Cuprum[wght].ttf",
+  "family": "cuprum",
+  "sibling_in_train": false,
+  "nearest_train_font": "sairacondensed/SairaCondensed-Medium.ttf",
+  "gen_ssim": 0.904234620487308,
+  "gen_l1": 0.024453234918257023,
+  "base_ssim": 0.9208865567089253,
+  "base_l1": 0.020975825069670346
+ },
+ {
+  "font": "delius/Delius-Regular.ttf",
+  "family": "delius",
+  "sibling_in_train": true,
+  "nearest_train_font": "deliusswashcaps/DeliusSwashCaps-Regular.ttf",
+  "gen_ssim": 0.8730466427736787,
+  "gen_l1": 0.031621293590820214,
+  "base_ssim": 0.8520372640730985,
+  "base_l1": 0.03976128995256001
+ },
+ {
+  "font": "dotumche/DotumChe-Regular.ttf",
+  "family": "dotumche",
+  "sibling_in_train": false,
+  "nearest_train_font": "gulimche/GulimChe-Regular.ttf",
+  "gen_ssim": 0.920388662509102,
+  "gen_l1": 0.01911402112269338,
+  "base_ssim": 0.9526232772823198,
+  "base_l1": 0.012293381802242329
+ },
+ {
+  "font": "elmssans/ElmsSans-Italic[wght].ttf",
+  "family": "elmssans",
+  "sibling_in_train": false,
+  "nearest_train_font": "prompt/Prompt-ThinItalic.ttf",
+  "gen_ssim": 0.8318160365076436,
+  "gen_l1": 0.024779020640206463,
+  "base_ssim": 0.8650066255093555,
+  "base_l1": 0.022785011956349334
+ },
+ {
+  "font": "elmssans/ElmsSans[wght].ttf",
+  "family": "elmssans",
+  "sibling_in_train": false,
+  "nearest_train_font": "museomoderno/MuseoModerno[wght].ttf",
+  "gen_ssim": 0.8264337762065626,
+  "gen_l1": 0.025827776075915455,
+  "base_ssim": 0.7924228633927461,
+  "base_l1": 0.0320945818452759
+ },
+ {
+  "font": "encodesans/EncodeSans[wdth,wght].ttf",
+  "family": "encodesans",
+  "sibling_in_train": true,
+  "nearest_train_font": "encodesanscondensed/EncodeSansCondensed-Thin.ttf",
+  "gen_ssim": 0.9058887356597827,
+  "gen_l1": 0.01855544139076262,
+  "base_ssim": 0.9825898985177758,
+  "base_l1": 0.005239765060321859
+ },
+ {
+  "font": "enriqueta/Enriqueta-Bold.ttf",
+  "family": "enriqueta",
+  "sibling_in_train": false,
+  "nearest_train_font": "sura/Sura-Bold.ttf",
+  "gen_ssim": 0.9118452731045185,
+  "gen_l1": 0.021116361249872345,
+  "base_ssim": 0.9074692800251397,
+  "base_l1": 0.02235274967995096
+ },
+ {
+  "font": "enriqueta/Enriqueta-Medium.ttf",
+  "family": "enriqueta",
+  "sibling_in_train": false,
+  "nearest_train_font": "sura/Sura-Regular.ttf",
+  "gen_ssim": 0.9182117159745579,
+  "gen_l1": 0.020008083076236097,
+  "base_ssim": 0.9083009398402253,
+  "base_l1": 0.023917368405122073
+ },
+ {
+  "font": "enriqueta/Enriqueta-Regular.ttf",
+  "family": "enriqueta",
+  "sibling_in_train": false,
+  "nearest_train_font": "esteban/Esteban-Regular.ttf",
+  "gen_ssim": 0.923471514963114,
+  "gen_l1": 0.01905724819392917,
+  "base_ssim": 0.8923476827312522,
+  "base_l1": 0.027278075648590604
+ },
+ {
+  "font": "enriqueta/Enriqueta-SemiBold.ttf",
+  "family": "enriqueta",
+  "sibling_in_train": false,
+  "nearest_train_font": "sura/Sura-Bold.ttf",
+  "gen_ssim": 0.9133904195286254,
+  "gen_l1": 0.022024702914851778,
+  "base_ssim": 0.8913493473746245,
+  "base_l1": 0.02698170484856088
+ },
+ {
+  "font": "francoisone/FrancoisOne-Regular.ttf",
+  "family": "francoisone",
+  "sibling_in_train": false,
+  "nearest_train_font": "jockeyone/JockeyOne-Regular.ttf",
+  "gen_ssim": 0.8973651091646715,
+  "gen_l1": 0.02344175739253455,
+  "base_ssim": 0.8610961904281484,
+  "base_l1": 0.03413173546420133
+ },
+ {
+  "font": "freeman/Freeman-Regular.ttf",
+  "family": "freeman",
+  "sibling_in_train": false,
+  "nearest_train_font": "cossettetitre/CossetteTitre-Bold.ttf",
+  "gen_ssim": 0.9182036046201281,
+  "gen_l1": 0.01927904258581235,
+  "base_ssim": 0.8993943767293531,
+  "base_l1": 0.0236100586071769
+ },
+ {
+  "font": "gabriela/Gabriela-Regular.ttf",
+  "family": "gabriela",
+  "sibling_in_train": false,
+  "nearest_train_font": "istokweb/IstokWeb-Regular.ttf",
+  "gen_ssim": 0.8651537201987358,
+  "gen_l1": 0.033653578443571606,
+  "base_ssim": 0.8379435878970896,
+  "base_l1": 0.04214842948428494
+ },
+ {
+  "font": "geologica/Geologica[CRSV,SHRP,slnt,wght].ttf",
+  "family": "geologica",
+  "sibling_in_train": false,
+  "nearest_train_font": "zenmarugothic/ZenMaruGothic-Regular.ttf",
+  "gen_ssim": 0.9152187900951946,
+  "gen_l1": 0.019783660967616325,
+  "base_ssim": 0.9071494345236313,
+  "base_l1": 0.024126043811965574
+ },
+ {
+  "font": "girassol/Girassol-Regular.ttf",
+  "family": "girassol",
+  "sibling_in_train": false,
+  "nearest_train_font": "bizudmincho/BIZUDMincho-Bold.ttf",
+  "gen_ssim": 0.8400318684304181,
+  "gen_l1": 0.04007204261390453,
+  "base_ssim": 0.8479224439996382,
+  "base_l1": 0.04126473613321147
+ },
+ {
+  "font": "homenaje/Homenaje-Regular.ttf",
+  "family": "homenaje",
+  "sibling_in_train": false,
+  "nearest_train_font": "sairaextracondensed/SairaExtraCondensed-Medium.ttf",
+  "gen_ssim": 0.9225181855729203,
+  "gen_l1": 0.02039471551022948,
+  "base_ssim": 0.9222054493536295,
+  "base_l1": 0.021409717036728212
+ },
+ {
+  "font": "imfellgreatprimersc/IMFeGPsc28P.ttf",
+  "family": "imfellgreatprimersc",
+  "sibling_in_train": true,
+  "nearest_train_font": "imfellenglishsc/IMFeENsc28P.ttf",
+  "gen_ssim": 0.8307874686544368,
+  "gen_l1": 0.040158657793034895,
+  "base_ssim": 0.860639211070003,
+  "base_l1": 0.034144548540736765
+ },
+ {
+  "font": "itim/Itim-Regular.ttf",
+  "family": "itim",
+  "sibling_in_train": false,
+  "nearest_train_font": "galdeano/Galdeano-Regular.ttf",
+  "gen_ssim": 0.9050918456261393,
+  "gen_l1": 0.02129179207568473,
+  "base_ssim": 0.8702479062231543,
+  "base_l1": 0.03254436289376401
+ },
+ {
+  "font": "jersey25/Jersey25-Regular.ttf",
+  "family": "jersey25",
+  "sibling_in_train": true,
+  "nearest_train_font": "jersey20/Jersey20-Regular.ttf",
+  "gen_ssim": 0.9054550834328469,
+  "gen_l1": 0.022164118733811886,
+  "base_ssim": 0.9207675681846035,
+  "base_l1": 0.019426851117230477
+ },
+ {
+  "font": "kadwa/Kadwa-Bold.ttf",
+  "family": "kadwa",
+  "sibling_in_train": false,
+  "nearest_train_font": "ibmplexsansjp/IBMPlexSansJP-Bold.ttf",
+  "gen_ssim": 0.8880289819938942,
+  "gen_l1": 0.026264133268689857,
+  "base_ssim": 0.8582138504675615,
+  "base_l1": 0.034006212283163625
+ },
+ {
+  "font": "kadwa/Kadwa-Regular.ttf",
+  "family": "kadwa",
+  "sibling_in_train": false,
+  "nearest_train_font": "kohsantepheap/KohSantepheap-Regular.ttf",
+  "gen_ssim": 0.9253592356780732,
+  "gen_l1": 0.01923718125103636,
+  "base_ssim": 0.9130289199922962,
+  "base_l1": 0.023737129864302722
+ },
+ {
+  "font": "libertinuskeyboard/LibertinusKeyboard-Regular.ttf",
+  "family": "libertinuskeyboard",
+  "sibling_in_train": false,
+  "nearest_train_font": "harmattan/Harmattan-SemiBold.ttf",
+  "gen_ssim": 0.254989664317465,
+  "gen_l1": 0.27253498549157,
+  "base_ssim": 0.4652282371801418,
+  "base_l1": 0.14448533413258005
+ },
+ {
+  "font": "librebarcode39text/LibreBarcode39Text-Regular.ttf",
+  "family": "librebarcode39text",
+  "sibling_in_train": true,
+  "nearest_train_font": "librebarcode39/LibreBarcode39-Regular.ttf",
+  "gen_ssim": 0.7858162246962814,
+  "gen_l1": 0.06361436859724369,
+  "base_ssim": 0.9665899160592805,
+  "base_l1": 0.00621783491620358
+ },
+ {
+  "font": "lilitaone/LilitaOne-Regular.ttf",
+  "family": "lilitaone",
+  "sibling_in_train": false,
+  "nearest_train_font": "sairasemicondensed/SairaSemiCondensed-Black.ttf",
+  "gen_ssim": 0.8582198833761053,
+  "gen_l1": 0.0304455277014603,
+  "base_ssim": 0.8766711278658829,
+  "base_l1": 0.026499616239774735
+ },
+ {
+  "font": "margarine/Margarine-Regular.ttf",
+  "family": "margarine",
+  "sibling_in_train": false,
+  "nearest_train_font": "tuffy/Tuffy-Bold.ttf",
+  "gen_ssim": 0.7851634939880696,
+  "gen_l1": 0.05004061843724327,
+  "base_ssim": 0.816719634052585,
+  "base_l1": 0.04749228821155873
+ },
+ {
+  "font": "michroma/Michroma-Regular.ttf",
+  "family": "michroma",
+  "sibling_in_train": false,
+  "nearest_train_font": "brunoace/BrunoAce-Regular.ttf",
+  "gen_ssim": 0.7611546439975888,
+  "gen_l1": 0.0679697277064019,
+  "base_ssim": 0.6952669559373252,
+  "base_l1": 0.09423701946643438
+ },
+ {
+  "font": "micro5charted/Micro5Charted-Regular.ttf",
+  "family": "micro5charted",
+  "sibling_in_train": false,
+  "nearest_train_font": "chathura/Chathura-ExtraBold.ttf",
+  "gen_ssim": 0.5456021252555876,
+  "gen_l1": 0.07232641072032299,
+  "base_ssim": 0.6829952190826668,
+  "base_l1": 0.05518130157539185
+ },
+ {
+  "font": "milonga/Milonga-Regular.ttf",
+  "family": "milonga",
+  "sibling_in_train": false,
+  "nearest_train_font": "caudex/Caudex-Regular.ttf",
+  "gen_ssim": 0.783578046816252,
+  "gen_l1": 0.05374687107557312,
+  "base_ssim": 0.7551439886552679,
+  "base_l1": 0.06455179955810308
+ },
+ {
+  "font": "mitr/Mitr-Bold.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "coiny/Coiny-Regular.ttf",
+  "gen_ssim": 0.8866445085982595,
+  "gen_l1": 0.022919783299352896,
+  "base_ssim": 0.8453249830142904,
+  "base_l1": 0.03567359978927577
+ },
+ {
+  "font": "mitr/Mitr-ExtraLight.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "gayathri/Gayathri-Thin.ttf",
+  "gen_ssim": 0.9028608555996149,
+  "gen_l1": 0.021533386345873488,
+  "base_ssim": 0.8890869059536662,
+  "base_l1": 0.02642994912024191
+ },
+ {
+  "font": "mitr/Mitr-Light.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-Regular.ttf",
+  "gen_ssim": 0.9185056620364282,
+  "gen_l1": 0.02022983640075681,
+  "base_ssim": 0.8695151266464788,
+  "base_l1": 0.03317501344420808
+ },
+ {
+  "font": "mitr/Mitr-Medium.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-Bold.ttf",
+  "gen_ssim": 0.9116953292968819,
+  "gen_l1": 0.019720471741512736,
+  "base_ssim": 0.8491831007218256,
+  "base_l1": 0.03603711149635467
+ },
+ {
+  "font": "mitr/Mitr-Regular.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "baijamjuree/BaiJamjuree-SemiBold.ttf",
+  "gen_ssim": 0.9232683709008646,
+  "gen_l1": 0.018403599380535332,
+  "base_ssim": 0.9050548409428459,
+  "base_l1": 0.024129893828896767
+ },
+ {
+  "font": "mitr/Mitr-SemiBold.ttf",
+  "family": "mitr",
+  "sibling_in_train": false,
+  "nearest_train_font": "belanosima/Belanosima-SemiBold.ttf",
+  "gen_ssim": 0.896464114028402,
+  "gen_l1": 0.020811496143962476,
+  "base_ssim": 0.8444226631424748,
+  "base_l1": 0.03491208902461097
+ },
+ {
+  "font": "modak/Modak-Regular.ttf",
+  "family": "modak",
+  "sibling_in_train": false,
+  "nearest_train_font": "passionone/PassionOne-Black.ttf",
+  "gen_ssim": 0.8494819867340093,
+  "gen_l1": 0.026701569596820688,
+  "base_ssim": 0.8204260359316818,
+  "base_l1": 0.035470444649616455
+ },
+ {
+  "font": "momotrustsans/MomoTrustSans[wght].ttf",
+  "family": "momotrustsans",
+  "sibling_in_train": false,
+  "nearest_train_font": "instrumentsans/InstrumentSans[wdth,wght].ttf",
+  "gen_ssim": 0.9211339554784669,
+  "gen_l1": 0.020027944228631703,
+  "base_ssim": 0.9015725648686049,
+  "base_l1": 0.02576697032224942
+ },
+ {
+  "font": "moul/Moul-Regular.ttf",
+  "family": "moul",
+  "sibling_in_train": false,
+  "nearest_train_font": "angkor/Angkor-Regular.ttf",
+  "gen_ssim": 0.8337119866940091,
+  "gen_l1": 0.035048530615390615,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "mrssheppards/MrsSheppards-Regular.ttf",
+  "family": "mrssheppards",
+  "sibling_in_train": false,
+  "nearest_train_font": "mrdafoe/MrDafoe-Regular.ttf",
+  "gen_ssim": 0.6748553254515108,
+  "gen_l1": 0.09656636615065818,
+  "base_ssim": 0.6952391658214866,
+  "base_l1": 0.09271501452523342
+ },
+ {
+  "font": "msmadi/MsMadi-Regular.ttf",
+  "family": "msmadi",
+  "sibling_in_train": false,
+  "nearest_train_font": "linefont/Linefont[wdth,wght].ttf",
+  "gen_ssim": 0.6845784201230679,
+  "gen_l1": 0.05171018640728707,
+  "base_ssim": 0.7156936357363628,
+  "base_l1": 0.040625203717896276
+ },
+ {
+  "font": "mynerve/Mynerve-Regular.ttf",
+  "family": "mynerve",
+  "sibling_in_train": false,
+  "nearest_train_font": "patrickhandsc/PatrickHandSC-Regular.ttf",
+  "gen_ssim": 0.7736321016298586,
+  "gen_l1": 0.04917187725213614,
+  "base_ssim": 0.7921161920063313,
+  "base_l1": 0.053457467440277975
+ },
+ {
+  "font": "notosansadlam/NotoSansAdlam[wght].ttf",
+  "family": "notosansadlam",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansadlamunjoined/NotoSansAdlamUnjoined[wght].ttf",
+  "gen_ssim": 0.9797195361733315,
+  "gen_l1": 0.005382949410828742,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansegyptianhieroglyphs/NotoSansEgyptianHieroglyphs-Regular.ttf",
+  "family": "notosansegyptianhieroglyphs",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.97649650287151,
+  "gen_l1": 0.004581227019290499,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosanselbasan/NotoSansElbasan-Regular.ttf",
+  "family": "notosanselbasan",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.978725294832885,
+  "gen_l1": 0.0045431545351017665,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansinscriptionalpahlavi/NotoSansInscriptionalPahlavi-Regular.ttf",
+  "family": "notosansinscriptionalpahlavi",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.9839578693994288,
+  "gen_l1": 0.0042794378390139404,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansjp/NotoSansJP[wght].ttf",
+  "family": "notosansjp",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosanshk/NotoSansHK[wght].ttf",
+  "gen_ssim": 0.9207198331245892,
+  "gen_l1": 0.016402033400384985,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosanskayahli/NotoSansKayahLi[wght].ttf",
+  "family": "notosanskayahli",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansadlamunjoined/NotoSansAdlamUnjoined[wght].ttf",
+  "gen_ssim": 0.9812441037198553,
+  "gen_l1": 0.0052882264779405075,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansoldhungarian/NotoSansOldHungarian-Regular.ttf",
+  "family": "notosansoldhungarian",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.9867614931440368,
+  "gen_l1": 0.003992295051191716,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansolditalic/NotoSansOldItalic-Regular.ttf",
+  "family": "notosansolditalic",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.9802048866602013,
+  "gen_l1": 0.004355460605980393,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosanspahawhhmong/NotoSansPahawhHmong-Regular.ttf",
+  "family": "notosanspahawhhmong",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.986374781064484,
+  "gen_l1": 0.004260045144350287,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosansthai/NotoSansThai[wdth,wght].ttf",
+  "family": "notosansthai",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosans/NotoSans[wdth,wght].ttf",
+  "gen_ssim": 0.9738115252605263,
+  "gen_l1": 0.005443857221101272,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notosanswarangciti/NotoSansWarangCiti-Regular.ttf",
+  "family": "notosanswarangciti",
+  "sibling_in_train": false,
+  "nearest_train_font": "notosansanatolianhieroglyphs/NotoSansAnatolianHieroglyphs-Regular.ttf",
+  "gen_ssim": 0.977789312645552,
+  "gen_l1": 0.004665520203180928,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notoserifbalinese/NotoSerifBalinese-Regular.ttf",
+  "family": "notoserifbalinese",
+  "sibling_in_train": false,
+  "nearest_train_font": "notoserifahom/NotoSerifAhom-Regular.ttf",
+  "gen_ssim": 0.9742929328739698,
+  "gen_l1": 0.007235688509102514,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "notoseriftibetan/NotoSerifTibetan[wght].ttf",
+  "family": "notoseriftibetan",
+  "sibling_in_train": false,
+  "nearest_train_font": "notoserifgujarati/NotoSerifGujarati[wght].ttf",
+  "gen_ssim": 0.9827760353964111,
+  "gen_l1": 0.005754039049435882,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "nototraditionalnushu/NotoTraditionalNushu[wght].ttf",
+  "family": "nototraditionalnushu",
+  "sibling_in_train": false,
+  "nearest_train_font": "notokufiarabic/NotoKufiArabic[wght].ttf",
+  "gen_ssim": 0.9818397590045901,
+  "gen_l1": 0.0053645955086586644,
+  "base_ssim": 0.9999902483599378,
+  "base_l1": 4.318549334594207e-05
+ },
+ {
+  "font": "oldstandardtt/OldStandard-Bold.ttf",
+  "family": "oldstandardtt",
+  "sibling_in_train": false,
+  "nearest_train_font": "vidaloka/Vidaloka-Regular.ttf",
+  "gen_ssim": 0.8747023903820931,
+  "gen_l1": 0.028545202826090316,
+  "base_ssim": 0.84610429827347,
+  "base_l1": 0.035637687079291394
+ },
+ {
+  "font": "oldstandardtt/OldStandard-Italic.ttf",
+  "family": "oldstandardtt",
+  "sibling_in_train": false,
+  "nearest_train_font": "arapey/Arapey-Italic.ttf",
+  "gen_ssim": 0.85112458700596,
+  "gen_l1": 0.03436787040071919,
+  "base_ssim": 0.8027982990319208,
+  "base_l1": 0.04279238217450837
+ },
+ {
+  "font": "oldstandardtt/OldStandard-Regular.ttf",
+  "family": "oldstandardtt",
+  "sibling_in_train": false,
+  "nearest_train_font": "gfsdidot/GFSDidot-Regular.ttf",
+  "gen_ssim": 0.8725190361253756,
+  "gen_l1": 0.02969923330114243,
+  "base_ssim": 0.8410212061641833,
+  "base_l1": 0.03787876970748952
+ },
+ {
+  "font": "palettemosaic/PaletteMosaic-Regular.ttf",
+  "family": "palettemosaic",
+  "sibling_in_train": false,
+  "nearest_train_font": "piedra/Piedra-Regular.ttf",
+  "gen_ssim": 0.7151907311872759,
+  "gen_l1": 0.07150303457487137,
+  "base_ssim": 0.7349682780949297,
+  "base_l1": 0.07125644944608212
+ },
+ {
+  "font": "peddana/Peddana-Regular.ttf",
+  "family": "peddana",
+  "sibling_in_train": false,
+  "nearest_train_font": "lateef/Lateef-ExtraLight.ttf",
+  "gen_ssim": 0.9369536120720503,
+  "gen_l1": 0.013285751860747312,
+  "base_ssim": 0.9326120600792709,
+  "base_l1": 0.016183416933772413
+ },
+ {
+  "font": "prozalibre/ProzaLibre-Bold.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "lato/Lato-ExtraBold.ttf",
+  "gen_ssim": 0.8915310518678565,
+  "gen_l1": 0.023518696863283502,
+  "base_ssim": 0.8890046002114681,
+  "base_l1": 0.025863608013481854
+ },
+ {
+  "font": "prozalibre/ProzaLibre-BoldItalic.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-BoldItalic.ttf",
+  "gen_ssim": 0.8673399899256784,
+  "gen_l1": 0.028488267549967514,
+  "base_ssim": 0.8667371450837459,
+  "base_l1": 0.032325950213410753
+ },
+ {
+  "font": "prozalibre/ProzaLibre-ExtraBold.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "trirong/Trirong-Black.ttf",
+  "gen_ssim": 0.8814816598453927,
+  "gen_l1": 0.02530095405737929,
+  "base_ssim": 0.8132779630168312,
+  "base_l1": 0.0445317592313315
+ },
+ {
+  "font": "prozalibre/ProzaLibre-ExtraBoldItalic.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-BoldItalic.ttf",
+  "gen_ssim": 0.8519404292028687,
+  "gen_l1": 0.02996512986917762,
+  "base_ssim": 0.8532300942265675,
+  "base_l1": 0.03512420717309764
+ },
+ {
+  "font": "prozalibre/ProzaLibre-Italic.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-MediumItalic.ttf",
+  "gen_ssim": 0.8999617366419875,
+  "gen_l1": 0.0243034302554232,
+  "base_ssim": 0.8846594880487432,
+  "base_l1": 0.030269791233412762
+ },
+ {
+  "font": "prozalibre/ProzaLibre-Medium.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "shipporiantique/ShipporiAntique-Regular.ttf",
+  "gen_ssim": 0.9007249748919911,
+  "gen_l1": 0.022484200719268398,
+  "base_ssim": 0.8493169479798902,
+  "base_l1": 0.04038640024497154
+ },
+ {
+  "font": "prozalibre/ProzaLibre-MediumItalic.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-MediumItalic.ttf",
+  "gen_ssim": 0.8956597748626945,
+  "gen_l1": 0.024755451877779784,
+  "base_ssim": 0.8788920323689797,
+  "base_l1": 0.0316634197976995
+ },
+ {
+  "font": "prozalibre/ProzaLibre-Regular.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "rethinksans/RethinkSans[wght].ttf",
+  "gen_ssim": 0.9252739238085923,
+  "gen_l1": 0.018588217287423447,
+  "base_ssim": 0.8816098131567011,
+  "base_l1": 0.030720692672865823
+ },
+ {
+  "font": "prozalibre/ProzaLibre-SemiBold.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "asul/Asul-Bold.ttf",
+  "gen_ssim": 0.8938552886306956,
+  "gen_l1": 0.023171562850079003,
+  "base_ssim": 0.8759809417839756,
+  "base_l1": 0.029858001279941898
+ },
+ {
+  "font": "prozalibre/ProzaLibre-SemiBoldItalic.ttf",
+  "family": "prozalibre",
+  "sibling_in_train": false,
+  "nearest_train_font": "livvic/Livvic-SemiBoldItalic.ttf",
+  "gen_ssim": 0.8780221970717531,
+  "gen_l1": 0.02673911257706424,
+  "base_ssim": 0.8800141363309039,
+  "base_l1": 0.030510591085445373
+ },
+ {
+  "font": "pushster/Pushster-Regular.ttf",
+  "family": "pushster",
+  "sibling_in_train": false,
+  "nearest_train_font": "lobster/Lobster-Regular.ttf",
+  "gen_ssim": 0.8049027071636718,
+  "gen_l1": 0.04605398701622765,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "quicksand/Quicksand[wght].ttf",
+  "family": "quicksand",
+  "sibling_in_train": false,
+  "nearest_train_font": "outfit/Outfit[wght].ttf",
+  "gen_ssim": 0.9019767380807459,
+  "gen_l1": 0.021017665992134272,
+  "base_ssim": 0.8767264807092371,
+  "base_l1": 0.025503233293111018
+ },
+ {
+  "font": "ramabhadra/Ramabhadra-Regular.ttf",
+  "family": "ramabhadra",
+  "sibling_in_train": false,
+  "nearest_train_font": "lunasima/Lunasima-Bold.ttf",
+  "gen_ssim": 0.9042981238643233,
+  "gen_l1": 0.023367608778495738,
+  "base_ssim": 0.8800950412824644,
+  "base_l1": 0.029997131787240505
+ },
+ {
+  "font": "ramsina/Ramsina-Regular.ttf",
+  "family": "ramsina",
+  "sibling_in_train": false,
+  "nearest_train_font": "gidugu/Gidugu-Regular.ttf",
+  "gen_ssim": 0.945087081203608,
+  "gen_l1": 0.013469045773703368,
+  "base_ssim": 0.9290885875561824,
+  "base_l1": 0.01678102673526774
+ },
+ {
+  "font": "rationale/Rationale-Regular.ttf",
+  "family": "rationale",
+  "sibling_in_train": false,
+  "nearest_train_font": "barlowcondensed/BarlowCondensed-Regular.ttf",
+  "gen_ssim": 0.9205886568433596,
+  "gen_l1": 0.02041730643349125,
+  "base_ssim": 0.9115088644797885,
+  "base_l1": 0.023650677681484437
+ },
+ {
+  "font": "reemkufi/ReemKufi[wght].ttf",
+  "family": "reemkufi",
+  "sibling_in_train": false,
+  "nearest_train_font": "reemkufifun/ReemKufiFun[wght].ttf",
+  "gen_ssim": 0.891473962355697,
+  "gen_l1": 0.02655449435313014,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "robotoserif/RobotoSerif-Italic[GRAD,opsz,wdth,wght].ttf",
+  "family": "robotoserif",
+  "sibling_in_train": false,
+  "nearest_train_font": "abeezee/ABeeZee-Italic.ttf",
+  "gen_ssim": 0.8995799644379691,
+  "gen_l1": 0.024447816394348728,
+  "base_ssim": 0.8475186673500099,
+  "base_l1": 0.037286069085623354
+ },
+ {
+  "font": "robotoserif/RobotoSerif[GRAD,opsz,wdth,wght].ttf",
+  "family": "robotoserif",
+  "sibling_in_train": false,
+  "nearest_train_font": "belgrano/Belgrano-Regular.ttf",
+  "gen_ssim": 0.902394067692586,
+  "gen_l1": 0.025085413769046043,
+  "base_ssim": 0.8741488887453619,
+  "base_l1": 0.0332289547461303
+ },
+ {
+  "font": "rougescript/RougeScript-Regular.ttf",
+  "family": "rougescript",
+  "sibling_in_train": false,
+  "nearest_train_font": "linefont/Linefont[wdth,wght].ttf",
+  "gen_ssim": 0.6653899940938024,
+  "gen_l1": 0.062146143829251856,
+  "base_ssim": 0.7424867076591488,
+  "base_l1": 0.03831697982597224
+ },
+ {
+  "font": "rubikdirt/RubikDirt-Regular.ttf",
+  "family": "rubikdirt",
+  "sibling_in_train": false,
+  "nearest_train_font": "rubikone/RubikOne-Regular.ttf",
+  "gen_ssim": 0.6978414112574188,
+  "gen_l1": 0.07351352242713279,
+  "base_ssim": 0.8372447102461773,
+  "base_l1": 0.04612072093531172
+ },
+ {
+  "font": "rubikgemstones/RubikGemstones-Regular.ttf",
+  "family": "rubikgemstones",
+  "sibling_in_train": false,
+  "nearest_train_font": "rubikone/RubikOne-Regular.ttf",
+  "gen_ssim": 0.7308735292289845,
+  "gen_l1": 0.06998481997784148,
+  "base_ssim": 0.811474118262446,
+  "base_l1": 0.037846258108286145
+ },
+ {
+  "font": "rubikmarkerhatch/RubikMarkerHatch-Regular.ttf",
+  "family": "rubikmarkerhatch",
+  "sibling_in_train": false,
+  "nearest_train_font": "coiny/Coiny-Regular.ttf",
+  "gen_ssim": 0.693322454231249,
+  "gen_l1": 0.07038159652593289,
+  "base_ssim": 0.7827534620869567,
+  "base_l1": 0.05226862367163313
+ },
+ {
+  "font": "ruslandisplay/RuslanDisplay-Regular.ttf",
+  "family": "ruslandisplay",
+  "sibling_in_train": false,
+  "nearest_train_font": "alegreyasanssc/AlegreyaSansSC-BlackItalic.ttf",
+  "gen_ssim": 0.7728537334608945,
+  "gen_l1": 0.05669786594808102,
+  "base_ssim": 0.7524595825620871,
+  "base_l1": 0.07036904871780822
+ },
+ {
+  "font": "sortsmillgoudy/SortsMillGoudy-Italic.ttf",
+  "family": "sortsmillgoudy",
+  "sibling_in_train": false,
+  "nearest_train_font": "oflsortsmillgoudytt/OFLGoudyStMTT-Italic.ttf",
+  "gen_ssim": 0.8469805716058738,
+  "gen_l1": 0.03437834082448736,
+  "base_ssim": 0.970223580817326,
+  "base_l1": 0.007950775072652292
+ },
+ {
+  "font": "sortsmillgoudy/SortsMillGoudy-Regular.ttf",
+  "family": "sortsmillgoudy",
+  "sibling_in_train": false,
+  "nearest_train_font": "oflsortsmillgoudytt/OFLGoudyStMTT.ttf",
+  "gen_ssim": 0.8897243852134868,
+  "gen_l1": 0.02563417504759545,
+  "base_ssim": 0.934569297510912,
+  "base_l1": 0.016522259986464012
+ },
+ {
+  "font": "sumana/Sumana-Bold.ttf",
+  "family": "sumana",
+  "sibling_in_train": false,
+  "nearest_train_font": "taiheritagepro/TaiHeritagePro-Bold.ttf",
+  "gen_ssim": 0.8800681203382208,
+  "gen_l1": 0.028005221234436366,
+  "base_ssim": 0.8518086530613399,
+  "base_l1": 0.03509615718367252
+ },
+ {
+  "font": "sumana/Sumana-Regular.ttf",
+  "family": "sumana",
+  "sibling_in_train": false,
+  "nearest_train_font": "mate/Mate-Regular.ttf",
+  "gen_ssim": 0.9168572030889035,
+  "gen_l1": 0.01997879036563508,
+  "base_ssim": 0.8909923305265384,
+  "base_l1": 0.02703493318342148
+ },
+ {
+  "font": "susemono/SUSEMono-Italic[wght].ttf",
+  "family": "susemono",
+  "sibling_in_train": true,
+  "nearest_train_font": "sourcesans3/SourceSans3-Italic[wght].ttf",
+  "gen_ssim": 0.8670930519261212,
+  "gen_l1": 0.02206976250051818,
+  "base_ssim": 0.8461386392032536,
+  "base_l1": 0.025887747215939328
+ },
+ {
+  "font": "susemono/SUSEMono[wght].ttf",
+  "family": "susemono",
+  "sibling_in_train": true,
+  "nearest_train_font": "assistant/Assistant[wght].ttf",
+  "gen_ssim": 0.8643549218063448,
+  "gen_l1": 0.021828494143692104,
+  "base_ssim": 0.8665733762320619,
+  "base_l1": 0.024044948580496488
+ },
+ {
+  "font": "tagesschrift/Tagesschrift-Regular.ttf",
+  "family": "tagesschrift",
+  "sibling_in_train": false,
+  "nearest_train_font": "karma/Karma-SemiBold.ttf",
+  "gen_ssim": 0.861682119551883,
+  "gen_l1": 0.03253662221609278,
+  "base_ssim": 0.8419231342000753,
+  "base_l1": 0.040312333111750316
+ },
+ {
+  "font": "taprom/Taprom-Regular.ttf",
+  "family": "taprom",
+  "sibling_in_train": false,
+  "nearest_train_font": "fasthand/Fasthand-Regular.ttf",
+  "gen_ssim": 0.7702099489793074,
+  "gen_l1": 0.05793855287768739,
+  "base_ssim": 1.0,
+  "base_l1": 0.0
+ },
+ {
+  "font": "tasaexplorer/TASAExplorer[wght].ttf",
+  "family": "tasaexplorer",
+  "sibling_in_train": false,
+  "nearest_train_font": "thasadith/Thasadith-Bold.ttf",
+  "gen_ssim": 0.9155189717235426,
+  "gen_l1": 0.021485597088417793,
+  "base_ssim": 0.8863812565367644,
+  "base_l1": 0.028481911649887868
+ },
+ {
+  "font": "tiltneon/TiltNeon[XROT,YROT].ttf",
+  "family": "tiltneon",
+  "sibling_in_train": false,
+  "nearest_train_font": "inder/Inder-Regular.ttf",
+  "gen_ssim": 0.8975524884155152,
+  "gen_l1": 0.025239251662996856,
+  "base_ssim": 0.8995083916095281,
+  "base_l1": 0.025440145670337245
+ },
+ {
+  "font": "tiltwarp/TiltWarp[XROT,YROT].ttf",
+  "family": "tiltwarp",
+  "sibling_in_train": false,
+  "nearest_train_font": "zain/Zain-Black.ttf",
+  "gen_ssim": 0.9054257407882708,
+  "gen_l1": 0.019842430027796232,
+  "base_ssim": 0.8738323050028904,
+  "base_l1": 0.027434215454899883
+ },
+ {
+  "font": "uoqmunthenkhung/UoqMunThenKhung-Regular.ttf",
+  "family": "uoqmunthenkhung",
+  "sibling_in_train": false,
+  "nearest_train_font": "kaiseidecol/KaiseiDecol-Bold.ttf",
+  "gen_ssim": 0.8910159131272333,
+  "gen_l1": 0.023960451872900447,
+  "base_ssim": 0.9807380936872057,
+  "base_l1": 0.00488132544603317
+ },
+ {
+  "font": "waterfall/Waterfall-Regular.ttf",
+  "family": "waterfall",
+  "sibling_in_train": false,
+  "nearest_train_font": "linefont/Linefont[wdth,wght].ttf",
+  "gen_ssim": 0.7337800175800836,
+  "gen_l1": 0.03434709244546421,
+  "base_ssim": 0.7890341313143999,
+  "base_l1": 0.022007428585214817
+ },
+ {
+  "font": "wendyone/WendyOne-Regular.ttf",
+  "family": "wendyone",
+  "sibling_in_train": false,
+  "nearest_train_font": "kanit/Kanit-ExtraBold.ttf",
+  "gen_ssim": 0.845346507265667,
+  "gen_l1": 0.03165736966865494,
+  "base_ssim": 0.848554820698653,
+  "base_l1": 0.03408806093354175
+ },
+ {
+  "font": "yarndings20/Yarndings20-Regular.ttf",
+  "family": "yarndings20",
+  "sibling_in_train": false,
+  "nearest_train_font": "yarndings20charted/Yarndings20Charted-Regular.ttf",
+  "gen_ssim": 0.21246852147021794,
+  "gen_l1": 0.18171509910137096,
+  "base_ssim": 0.6148060891732571,
+  "base_l1": 0.04855613790928049
+ },
+ {
+  "font": "yujisyuku/YujiSyuku-Regular.ttf",
+  "family": "yujisyuku",
+  "sibling_in_train": false,
+  "nearest_train_font": "tinos/Tinos-Regular.ttf",
+  "gen_ssim": 0.9000788390111668,
+  "gen_l1": 0.0236742665614695,
+  "base_ssim": 0.8845171404757725,
+  "base_l1": 0.02816875594014183
+ }
+]
