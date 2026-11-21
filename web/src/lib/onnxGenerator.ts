@@ -68,7 +68,6 @@ export function createOnnxGenerator(opts: {
         return { enc, unet, assets };
       } catch (e) {
         lastErr = e;
-        console.warn(`[TypeFaze] could not start the model on ${ep}:`, e);
       }
     }
     throw new Error(`Could not start the model: ${String(lastErr)}`);
@@ -169,16 +168,8 @@ export function createBrowserOnnxGenerator(
       return { nullStyle: new Float32Array(await nul.arrayBuffer()), steps: m.steps, wasmSteps: m.wasmSteps ?? m.steps, cfg: m.cfg };
     },
     createSession: async (url, ep) => {
-      const name = url.split("/").pop();
-      const t0 = performance.now();
-      const log = (msg: string) => console.info(`[TypeFaze] ${name} (${ep}): ${msg} at ${((performance.now() - t0) / 1000).toFixed(1)}s`);
-      log("loading ONNX Runtime");
       const ort = await import("onnxruntime-web/webgpu");
-      ort.env.logLevel = "warning";
-      const model = await bytes(url);
-      log(`model bytes ready (${(model.length / 1e6).toFixed(1)} MB), creating session`);
-      const session = await ort.InferenceSession.create(model, { executionProviders: [ep] });
-      log("session ready");
+      const session = await ort.InferenceSession.create(await bytes(url), { executionProviders: [ep] });
       return {
         async run(feeds) {
           const t: Record<string, InstanceType<typeof ort.Tensor>> = {};

@@ -7,8 +7,7 @@ import type { Backend, OnnxGenerator } from "./onnxGenerator";
 
 export type WorkerLike = {
   postMessage: (msg: ToWorker) => void;
-  addEventListener(type: "message", fn: (e: { data: FromWorker }) => void): void;
-  addEventListener(type: "error", fn: (e: { message?: string }) => void): void;
+  addEventListener: (type: "message", fn: (e: { data: FromWorker }) => void) => void;
 };
 
 export function createWorkerOnnxGenerator(
@@ -47,16 +46,6 @@ export function createWorkerOnnxGenerator(
         pending.delete(data.id);
         break;
     }
-  });
-
-  // A crash inside the worker (e.g. a script that fails to load) never sends a message back,
-  // so without this every request would wait forever.
-  worker.addEventListener("error", (e) => {
-    const err = new Error(`The model worker crashed: ${e.message || "unknown error"}`);
-    for (const p of pending.values()) p.reject(err);
-    pending.clear();
-    warm?.reject(err);
-    warm = null;
   });
 
   const gen = ((refs: RefSet, chars?: number[]) =>
