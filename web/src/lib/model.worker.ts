@@ -12,3 +12,4 @@ const handle = createWorkerHandler(
   (msg, transfer) => scope.postMessage(msg, transfer ?? []),
 );
 scope.addEventListener("message", (e) => void handle(e.data));
+console.info("[TypeFaze] model worker started");

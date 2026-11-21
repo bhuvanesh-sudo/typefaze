@@ -45,7 +45,7 @@ export default function App() {
     getOnnx()
       .warmUp()
       .then(() => live && setModelStatus("Model ready."))
-      .catch(() => live && setModelStatus("Couldn't download the model yet. It will retry when you press Generate."));
+      .catch((e: unknown) => live && setModelStatus(`The model didn't start (${e instanceof Error ? e.message : String(e)}). It will retry when you press Generate.`));
     return () => {
       live = false;
     };

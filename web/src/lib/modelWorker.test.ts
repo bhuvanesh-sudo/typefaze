@@ -31,10 +31,10 @@ function pair(opts?: Parameters<typeof stubGenerator>[1]) {
     (hooks) => stubGenerator(hooks, opts),
     (msg) => queueMicrotask(() => listeners.forEach((l) => l({ data: msg }))),
   );
-  const worker: WorkerLike = {
+  const worker = {
     postMessage: (msg: ToWorker) => void queueMicrotask(() => void handle(msg)),
-    addEventListener: (_t, fn) => void listeners.push(fn),
-  };
+    addEventListener: (t: string, fn: (e: { data: FromWorker }) => void) => void (t === "message" && listeners.push(fn)),
+  } as WorkerLike;
   return worker;
 }
 
@@ -70,6 +70,22 @@ describe("model worker protocol", () => {
 
   it("a generation error rejects that request only", async () => {
     await expect(createWorkerOnnxGenerator(pair({ failGenerate: true }))(refs)).rejects.toThrow("boom");
+  });
+});
+
+describe("worker crashes", () => {
+  it("rejects waiting requests and warm-up with the crash message instead of hanging", async () => {
+    const handlers: Record<string, ((e: unknown) => void)[]> = {};
+    const worker = {
+      postMessage: () => {},
+      addEventListener: (t: string, fn: (e: unknown) => void) => void (handlers[t] ??= []).push(fn),
+    } as unknown as WorkerLike;
+    const gen = createWorkerOnnxGenerator(worker);
+    const warm = gen.warmUp();
+    const job = gen(refs);
+    handlers.error.forEach((h) => h({ message: "Failed to load ORT" }));
+    await expect(warm).rejects.toThrow("The model worker crashed: Failed to load ORT");
+    await expect(job).rejects.toThrow("The model worker crashed: Failed to load ORT");
   });
 });
 
