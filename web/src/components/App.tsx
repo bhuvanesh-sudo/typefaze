@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buildFont } from "../lib/fontBuild";
-import { baselineGenerator, type Generator } from "../lib/generator";
-import { createBrowserOnnxGenerator, type OnnxGenerator } from "../lib/onnxGenerator";
+import type { Phase } from "../lib/boardState";
+import { ALL_CHARS, baselineGenerator, type Generator } from "../lib/generator";
+import { createBrowserOnnxGenerator, type OnnxGenerator, type StepFrame } from "../lib/onnxGenerator";
+import { nextPaint } from "../lib/paint";
 import { REF_CHARS, type GlyphBitmap, type RefChar, type RefSet } from "../lib/glyphs";
 import { fontFileToRefs } from "../lib/normalize";
 import DrawPad from "./DrawPad";
@@ -17,6 +19,11 @@ export default function App() {
   const [tooSmall, setTooSmall] = useState<Partial<Record<RefChar, boolean>>>({});
   const [error, setError] = useState<string | null>(null);
   const [glyphs, setGlyphs] = useState<GlyphBitmap[] | null>(null);
+  const glyphsRef = useRef<GlyphBitmap[] | null>(null);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [running, setRunning] = useState<number[] | null>(null);
+  const [frame, setFrame] = useState<StepFrame | null>(null);
+  const [fontBuf, setFontBuf] = useState<ArrayBuffer | null>(null);
   const [busy, setBusy] = useState(false);
   const [name, setName] = useState("Mine");
   const [mode, setMode] = useState<"model" | "baseline">("model");
@@ -25,11 +32,16 @@ export default function App() {
   const [modelStatus, setModelStatus] = useState<string>("Downloading the model…");
   const getOnnx = () =>
     (onnx.current ??= createBrowserOnnxGenerator(
-      (done, total) => setProgress(`Step ${done} of ${total}`),
+      undefined,
       (loaded, total) => {
         const mb = (n: number) => (n / 1e6).toFixed(1);
         if (total && loaded >= total) setModelStatus("Model downloaded. Starting it up…");
         else setModelStatus(total ? `Downloading the model: ${mb(loaded)} / ${mb(total)} MB` : `Downloading the model: ${mb(loaded)} MB`);
+      },
+      // Show each real step on the board, and wait for it to be painted before the next step starts.
+      (f) => {
+        setFrame(f);
+        return nextPaint();
       },
     ));
   const getGenerator = (): Generator => (mode === "baseline" ? baselineGenerator : getOnnx());
@@ -79,29 +91,45 @@ export default function App() {
     setBusy(true);
     setError(null);
     setProgress(null);
+    setFrame(null);
+    // Compare mode has no model steps, so no slot pretends to be "starting from noise".
+    setRunning(mode === "baseline" ? null : (chars ?? ALL_CHARS));
+    setPhase("denoising");
     const started = performance.now();
     try {
       const out = await getGenerator()(refs as RefSet, chars);
       const secs = ((performance.now() - started) / 1000).toFixed(1);
       const where = mode === "baseline" ? "nearest font" : onnx.current?.backend() === "webgpu" ? "your GPU (WebGPU)" : "your CPU (WebGPU unavailable, so this is slower)";
+      let merged = out;
+      if (chars && glyphsRef.current) {
+        merged = [...glyphsRef.current];
+        chars.forEach((c, k) => (merged[c] = out[k]));
+      }
+      glyphsRef.current = merged;
+      setGlyphs(merged);
+      setRunning(null);
+      setFrame(null);
+      if (!chars) {
+        // The tracing handoff is real: the font is built (outlines traced) right after the paint below.
+        setPhase("tracing");
+        await nextPaint();
+      }
+      setFontBuf(buildFont(merged, "TypeFaze Preview"));
+      setPhase("done");
       setProgress(`Done in ${secs}s on ${where}.`);
-      setGlyphs((prev) => {
-        if (!chars || !prev) return out;
-        const next = [...prev];
-        chars.forEach((c, k) => (next[c] = out[k]));
-        return next;
-      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
       setProgress(null);
+      setRunning(null);
+      setFrame(null);
+      setPhase(glyphsRef.current ? "done" : "idle");
     } finally {
       setBusy(false);
     }
   };
 
-  // The preview font depends only on the glyphs; the chosen name is applied when downloading,
+  // The preview font is built once per finished run; the chosen name is applied when downloading,
   // so typing a name doesn't re-trace 52 letters on every keystroke.
-  const fontBuf = useMemo(() => (glyphs ? buildFont(glyphs, "TypeFaze Preview") : null), [glyphs]);
   const download = () => {
     if (!glyphs) return;
     const label = name.trim() || "Mine";
@@ -115,15 +143,37 @@ export default function App() {
   const clippedLetters = REF_CHARS.filter((c) => clipped[c]);
   const smallLetters = REF_CHARS.filter((c) => tooSmall[c]);
 
+  const stepLine = (f: StepFrame | null) =>
+    !f ? "Starting from noise…"
+    : `Step ${f.step} of ${f.steps}. ${f.step >= f.steps ? "Sharpened. Tracing outlines next." : f.step / f.steps < 0.5 ? "Starting from noise…" : "Finding the shapes of your hand…"}`;
+  const status =
+    phase === "denoising" ? (mode === "baseline" ? "Finding the nearest font…" : stepLine(frame))
+    : phase === "tracing" ? `Tracing ${running?.length === 1 ? "1 outline" : "52 outlines"}…`
+    : !ready ? `Still to draw: ${missing.join(", ")}`
+    : progress ?? "Ready when you are.";
+  const active = phase === "denoising" || phase === "tracing";
+  const step = fontBuf ? 3 : busy || ready ? 2 : 1;
+
   return (
     <main className="app">
-      <header>
-        <h1>TypeFaze</h1>
-        <p>Draw five letters. Get a whole font.</p>
+      <header className="top">
+        <div className="logo">TypeFaze</div>
+        <nav className="trail" aria-label="Progress">
+          {["Draw", "Generate", "Try it"].map((label, k) => (
+            <span key={label} aria-current={step === k + 1 ? "step" : undefined}>
+              {k + 1} {label}
+            </span>
+          ))}
+        </nav>
       </header>
 
+      <h1>
+        Draw five letters.<span>Get a whole font.</span>
+      </h1>
+      <p className="lede">Trace H, O, n, a and g between the guides. A small model on your device draws the other 47.</p>
+
       <section aria-labelledby="refs-heading">
-        <h2 id="refs-heading">1. Draw these letters</h2>
+        <h2 id="refs-heading" className="sr-only">Draw these letters</h2>
         <p className="hint">
           Keep capitals between the top and bottom lines, lowercase between the middle and bottom lines, and let the tail
           of the g drop below.
@@ -133,17 +183,6 @@ export default function App() {
             <DrawPad key={c} letter={c} preset={presets[c] ?? null} onChange={onChange} />
           ))}
         </div>
-        <label className="upload">
-          …or use letters from a font you already have:{" "}
-          <input
-            type="file"
-            accept=".ttf,.otf,.woff"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void onUpload(f);
-            }}
-          />
-        </label>
         {error && (
           <p role="alert" className="error">
             {error}
@@ -161,40 +200,58 @@ export default function App() {
         )}
       </section>
 
-      <section aria-labelledby="gen-heading">
-        <h2 id="gen-heading">2. Generate</h2>
-        <button type="button" className="primary" disabled={!ready || busy} onClick={() => void run()}>
-          {busy ? "Generating…" : "Generate"}
-        </button>
+      <section className="panel board" aria-labelledby="gen-heading">
+        <div className="board-head">
+          <div>
+            <h2 id="gen-heading">Your alphabet</h2>
+            <p className={`status${active ? " is-active" : ""}`} aria-live="polite">{status}</p>
+            {mode === "model" && <p className="hint" aria-live="polite">{modelStatus}</p>}
+          </div>
+          <button type="button" className="primary" disabled={!ready || busy} onClick={() => void run()}>
+            {busy ? "Generating…" : "Generate my font"}
+          </button>
+        </div>
+        <GlyphGrid state={{ refs, glyphs, running, frame, phase }} busy={busy} onRegenerate={(i) => void run([i])} />
         <label className="toggle">
           <input type="checkbox" checked={mode === "baseline"} onChange={(e) => setMode(e.target.checked ? "baseline" : "model")} disabled={busy} />{" "}
           Compare: use the nearest existing font instead of the model
         </label>
-        {!ready && <p className="hint">Still to draw: {missing.join(", ")}</p>}
-        {mode === "model" && <p className="hint" aria-live="polite">{modelStatus}</p>}
-        {progress && <p className="hint" aria-live="polite">{progress}</p>}
-        {glyphs && (
-          <>
-            <p className="hint">Click any letter to try it again.</p>
-            <GlyphGrid glyphs={glyphs} busy={busy} onRegenerate={(i) => void run([i])} />
-          </>
-        )}
+        <label className="upload">
+          …or start from letters in a font you already have:{" "}
+          <input
+            type="file"
+            accept=".ttf,.otf,.woff"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void onUpload(f);
+            }}
+          />
+        </label>
       </section>
 
-      {fontBuf && (
-        <section aria-labelledby="test-heading">
-          <h2 id="test-heading">3. Try it and download</h2>
-          <TypeTest fontBuf={fontBuf} family="TypeFaze Preview" />
-          <div className="row">
-            <label>
-              Font name: <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} />
-            </label>
-            <button type="button" className="primary" onClick={download}>
-              Download .otf
-            </button>
-          </div>
-        </section>
-      )}
+      <section
+        className={`panel test${fontBuf ? " is-ready" : ""}`}
+        aria-labelledby="test-heading"
+        aria-hidden={fontBuf ? undefined : true}
+        {...(fontBuf ? {} : ({ inert: "" } as object))}
+      >
+        <h2 id="test-heading">Try it, then download</h2>
+        {fontBuf ? (
+          <>
+            <TypeTest fontBuf={fontBuf} family="TypeFaze Preview" />
+            <div className="row">
+              <label>
+                Font name: <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} />
+              </label>
+              <button type="button" className="primary" onClick={download}>
+                Download .otf
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="hint">Your font will show up here, ready to type with.</p>
+        )}
+      </section>
     </main>
   );
 }

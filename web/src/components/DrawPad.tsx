@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GUIDE_ROWS, SCALE, SIZE, type GlyphBitmap, type RefChar } from "../lib/glyphs";
 import { canvasToGlyph, isEmpty } from "../lib/normalize";
 
@@ -22,11 +22,14 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
   const ink = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<[number, number] | null>(null);
+  const [active, setActive] = useState(false);
+  const [filled, setFilled] = useState(false);
 
   useEffect(() => {
     const ctx = ink.current?.getContext("2d");
     if (!ctx) return;
     paintBlank(ctx);
+    setFilled(!!preset);
     if (preset) {
       const img = ctx.createImageData(SIDE, SIDE);
       for (let y = 0; y < SIDE; y++)
@@ -61,19 +64,22 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
     if (!drawing.current) return;
     drawing.current = false;
     last.current = null;
+    setActive(false);
     const { glyph, clipped } = canvasToGlyph(ink.current!);
     const empty = isEmpty(glyph);
     const anyInk = glyph.some((v) => v > -0.9);
+    setFilled(!empty);
     onChange(letter, empty ? null : glyph, clipped, empty && anyInk);
   };
 
   const clear = () => {
     paintBlank(ink.current!.getContext("2d")!);
+    setFilled(false);
     onChange(letter, null, false);
   };
 
   return (
-    <figure className="pad">
+    <figure className="pad" data-active={active || undefined} data-filled={filled || undefined}>
       <div className="pad-stack">
         <canvas
           ref={ink}
@@ -83,6 +89,7 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
           onPointerDown={(e) => {
             e.currentTarget.setPointerCapture?.(e.pointerId);
             drawing.current = true;
+            setActive(true);
             const p = pos(e);
             last.current = p;
             line(p, p);
