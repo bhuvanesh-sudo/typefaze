@@ -23,4 +23,10 @@ describe("styles", () => {
     expect(css).not.toContain("draw-outline");
     expect(css).not.toMatch(/\.trace path[^}]*stroke-dashoffset/);
   });
+
+  it("draws with a simple dot cursor, not a crosshair", () => {
+    const rule = css.match(/\.pad-stack canvas \{[^}]*\}/)?.[0] ?? "";
+    expect(rule).toMatch(/cursor: url\("data:image\/svg\+xml[^)]*circle/);
+    expect(rule).not.toMatch(/cursor: crosshair/);
+  });
 });

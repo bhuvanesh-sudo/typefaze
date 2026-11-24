@@ -10,6 +10,8 @@ type Props = {
   /** Set to show a glyph from an uploaded font instead of a drawing. */
   preset?: GlyphBitmap | null;
   onChange: (letter: RefChar, glyph: GlyphBitmap | null, clipped: boolean, tooSmall?: boolean) => void;
+  /** While a font is being generated the letters are locked, so the result matches what is shown. */
+  disabled?: boolean;
 };
 
 function paintBlank(ctx: CanvasRenderingContext2D) {
@@ -18,7 +20,7 @@ function paintBlank(ctx: CanvasRenderingContext2D) {
 }
 
 /** One drawing square for one reference letter, with typographic guide lines in a separate layer. */
-export default function DrawPad({ letter, preset, onChange }: Props) {
+export default function DrawPad({ letter, preset, onChange, disabled = false }: Props) {
   const ink = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<[number, number] | null>(null);
@@ -79,7 +81,7 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
   };
 
   return (
-    <figure className="pad" data-active={active || undefined} data-filled={filled || undefined}>
+    <figure className="pad" data-active={active || undefined} data-filled={filled || undefined} data-disabled={disabled || undefined}>
       <div className="pad-stack">
         <canvas
           ref={ink}
@@ -87,6 +89,7 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
           height={SIDE}
           aria-label={`Draw ${letter}`}
           onPointerDown={(e) => {
+            if (disabled) return;
             e.currentTarget.setPointerCapture?.(e.pointerId);
             drawing.current = true;
             setActive(true);
@@ -113,7 +116,7 @@ export default function DrawPad({ letter, preset, onChange }: Props) {
         </span>
       </div>
       <figcaption>
-        <button type="button" onClick={clear}>
+        <button type="button" onClick={clear} disabled={disabled}>
           Clear {letter}
         </button>
       </figcaption>
