@@ -30,6 +30,7 @@ export default function App() {
   const [progress, setProgress] = useState<string | null>(null);
   const onnx = useRef<OnnxGenerator | null>(null);
   const [modelStatus, setModelStatus] = useState<string>("Downloading the model…");
+  const [modelReady, setModelReady] = useState(false);
   const getOnnx = () =>
     (onnx.current ??= createBrowserOnnxGenerator(
       undefined,
@@ -40,6 +41,7 @@ export default function App() {
       },
       // Show each real step on the board, and wait for it to be painted before the next step starts.
       (f) => {
+        setModelReady(true);
         setFrame(f);
         return nextPaint();
       },
@@ -52,7 +54,11 @@ export default function App() {
     let live = true;
     getOnnx()
       .warmUp()
-      .then(() => live && setModelStatus("Model ready."))
+      .then(() => {
+        if (!live) return;
+        setModelStatus("Model ready.");
+        setModelReady(true);
+      })
       .catch(() => live && setModelStatus("Couldn't download the model yet. It will retry when you press Generate."));
     return () => {
       live = false;
@@ -88,6 +94,7 @@ export default function App() {
 
   const run = async (chars?: number[]) => {
     if (!ready) return;
+    const prev = glyphsRef.current;
     setBusy(true);
     setError(null);
     setProgress(null);
@@ -107,22 +114,25 @@ export default function App() {
       }
       glyphsRef.current = merged;
       setGlyphs(merged);
-      setRunning(null);
       setFrame(null);
-      if (!chars) {
-        // The tracing handoff is real: the font is built (outlines traced) right after the paint below.
-        setPhase("tracing");
-        await nextPaint();
-      }
+      // The tracing handoff is real: the font is built (outlines traced) right after this paint.
+      // A single-letter run outlines just that slot.
+      setRunning(chars ?? null);
+      setPhase("tracing");
+      await nextPaint();
       setFontBuf(buildFont(merged, "TypeFaze Preview"));
+      setRunning(null);
       setPhase("done");
       setProgress(`Done in ${secs}s on ${where}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
       setProgress(null);
+      // Put the board back exactly as it was before this run (the font still matches it).
+      glyphsRef.current = prev;
+      setGlyphs(prev);
       setRunning(null);
       setFrame(null);
-      setPhase(glyphsRef.current ? "done" : "idle");
+      setPhase(prev ? "done" : "idle");
     } finally {
       setBusy(false);
     }
@@ -144,7 +154,7 @@ export default function App() {
   const smallLetters = REF_CHARS.filter((c) => tooSmall[c]);
 
   const stepLine = (f: StepFrame | null) =>
-    !f ? "Starting from noise…"
+    !f ? (modelReady ? "Reading your five letters…" : "Waiting for the model to download…")
     : `Step ${f.step} of ${f.steps}. ${f.step >= f.steps ? "Sharpened. Tracing outlines next." : f.step / f.steps < 0.5 ? "Starting from noise…" : "Finding the shapes of your hand…"}`;
   const status =
     phase === "denoising" ? (mode === "baseline" ? "Finding the nearest font…" : stepLine(frame))
@@ -152,6 +162,8 @@ export default function App() {
     : !ready ? `Still to draw: ${missing.join(", ")}`
     : progress ?? "Ready when you are.";
   const active = phase === "denoising" || phase === "tracing";
+  // Screen readers hear the start and the result, not every model step.
+  const announcement = "Generating your font…";
   const step = fontBuf ? 3 : busy || ready ? 2 : 1;
 
   return (
@@ -180,7 +192,7 @@ export default function App() {
         </p>
         <div className="pads">
           {REF_CHARS.map((c) => (
-            <DrawPad key={c} letter={c} preset={presets[c] ?? null} onChange={onChange} />
+            <DrawPad key={c} letter={c} preset={presets[c] ?? null} onChange={onChange} disabled={busy} />
           ))}
         </div>
         {error && (
@@ -204,8 +216,17 @@ export default function App() {
         <div className="board-head">
           <div>
             <h2 id="gen-heading">Your alphabet</h2>
-            <p className={`status${active ? " is-active" : ""}`} aria-live="polite">{status}</p>
-            {mode === "model" && <p className="hint" aria-live="polite">{modelStatus}</p>}
+            <p className={`status${active ? " is-active" : ""}`} role="status">
+              {active ? (
+                <>
+                  <span aria-hidden="true">{status}</span>
+                  <span className="sr-only">{announcement}</span>
+                </>
+              ) : (
+                status
+              )}
+            </p>
+            {mode === "model" && <p className="hint">{modelStatus}</p>}
           </div>
           <button type="button" className="primary" disabled={!ready || busy} onClick={() => void run()}>
             {busy ? "Generating…" : "Generate my font"}
@@ -221,6 +242,7 @@ export default function App() {
           <input
             type="file"
             accept=".ttf,.otf,.woff"
+            disabled={busy}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) void onUpload(f);

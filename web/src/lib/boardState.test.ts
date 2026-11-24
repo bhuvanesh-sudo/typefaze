@@ -57,4 +57,10 @@ describe("cellView", () => {
     expect(cellView(H, s).kind).toBe("step");
     expect(cellView(B, s).kind).toBe("final");
   });
+
+  it("while tracing a single regenerated letter, only that slot shows its outline", () => {
+    const s = base({ glyphs: done(), running: [5], phase: "tracing" });
+    expect(cellView(5, s)).toMatchObject({ kind: "final", outline: true });
+    expect(cellView(4, s)).toMatchObject({ kind: "final", outline: false });
+  });
 });

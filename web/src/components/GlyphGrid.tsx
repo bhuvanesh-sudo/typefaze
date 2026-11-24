@@ -25,7 +25,7 @@ function paint(canvas: HTMLCanvasElement | null, bitmap: GlyphBitmap | null) {
 
 const reduceMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function Cell({ i, view, busy, onClick }: { i: number; view: CellView; busy: boolean; onClick: () => void }) {
+function Cell({ i, view, generated, busy, onClick }: { i: number; view: CellView; generated: boolean; busy: boolean; onClick: () => void }) {
   const char = CHARS[i];
   const under = useRef<HTMLCanvasElement>(null);
   const over = useRef<HTMLCanvasElement>(null);
@@ -74,9 +74,21 @@ function Cell({ i, view, busy, onClick }: { i: number; view: CellView; busy: boo
       <span className="label" aria-hidden="true">{char}</span>
     </>
   );
-  if (view.kind === "final") {
+  // Once a slot has a generated letter it stays the same button (unavailable while busy, never swapped
+  // for another element), so keyboard focus survives a regenerate.
+  if (generated) {
+    const available = view.kind === "final" && !busy;
     return (
-      <button type="button" className="cell" data-char={char} data-state={state} onClick={onClick} disabled={busy} aria-label={`Try ${char} again`} title={`Try ${char} again`}>
+      <button
+        type="button"
+        className="cell"
+        data-char={char}
+        data-state={state}
+        onClick={() => available && onClick()}
+        aria-disabled={available ? undefined : true}
+        aria-label={`Try ${char} again`}
+        title={`Try ${char} again`}
+      >
         {inner}
       </button>
     );
@@ -93,7 +105,7 @@ export default function GlyphGrid({ state, busy, onRegenerate }: { state: BoardS
   return (
     <div className="grid">
       {Array.from(CHARS, (_, i) => (
-        <Cell key={CHARS[i]} i={i} view={cellView(i, state)} busy={busy} onClick={() => onRegenerate(i)} />
+        <Cell key={CHARS[i]} i={i} view={cellView(i, state)} generated={state.glyphs !== null} busy={busy} onClick={() => onRegenerate(i)} />
       ))}
     </div>
   );

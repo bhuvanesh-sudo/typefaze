@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const buildSpy = vi.hoisted(() => ({ calls: [] as string[] }));
+const buildSpy = vi.hoisted(() => ({ calls: [] as string[], fail: false, seen: [] as string[] }));
 
 const warm = vi.hoisted(() => ({ calls: 0, release: null as null | (() => void) }));
 
@@ -57,10 +57,25 @@ vi.mock("../lib/generator", async (orig) => {
 
 vi.mock("../lib/fontBuild", async (orig) => {
   const real = await orig<typeof import("../lib/fontBuild")>();
-  return { ...real, buildFont: (g: Float32Array[], name: string) => (buildSpy.calls.push(name), real.buildFont(g, name)) };
+  return {
+    ...real,
+    buildFont: (g: Float32Array[], name: string) => {
+      buildSpy.calls.push(name);
+      // What the board shows at the moment the font is built (the tracing beat).
+      const st = (c: string) => document.querySelector(`[data-char="${c}"]`)?.getAttribute("data-state");
+      buildSpy.seen.push(`${st("B")}/${st("A")}`);
+      if (buildSpy.fail) throw new Error("could not build the font");
+      return real.buildFont(g, name);
+    },
+  };
 });
 
 import App from "./App";
+
+beforeEach(() => {
+  buildSpy.fail = false;
+  buildSpy.seen.length = 0;
+});
 
 function drawStroke(canvas: HTMLCanvasElement, len = 120) {
   canvas.getBoundingClientRect = () =>
@@ -291,5 +306,105 @@ describe("status line and type test", () => {
     await clickGenerate();
     expect(await screen.findByRole("textbox", { name: /font name/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /download/i })).toBeEnabled();
+  });
+});
+
+describe("review follow-ups", () => {
+  beforeEach(() => {
+    warm.calls = 0;
+    warm.release = null;
+    buildSpy.calls.length = 0;
+    Object.assign(model, { frames: false, step: 1, steps: 4, gate: null, release: null, fail: false });
+    URL.createObjectURL = vi.fn(() => "blob:x");
+    URL.revokeObjectURL = vi.fn();
+  });
+  afterEach(() => cleanup());
+
+  const finished = () => Array.from(document.querySelectorAll("[data-char]")).every((e) => e.getAttribute("data-state") === "final");
+  const fullRun = async () => {
+    drawAll();
+    await clickGenerate();
+    await waitFor(() => expect(finished()).toBe(true));
+  };
+
+  it("keeps keyboard focus on a letter while it is regenerated", async () => {
+    render(<App />);
+    await fullRun();
+    const b = screen.getByRole("button", { name: "Try B again" });
+    b.focus();
+    model.frames = true;
+    hold();
+    await act(async () => void fireEvent.click(b));
+    await waitFor(() => expect(cell("B")).toHaveAttribute("data-state", "step"));
+    expect(document.activeElement).toBe(cell("B"));
+    expect(cell("B")).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: "Try A again" })).toHaveAttribute("aria-disabled", "true");
+    await act(async () => model.release!());
+    await waitFor(() => expect(cell("B")).toHaveAttribute("data-state", "final"));
+    expect(document.activeElement).toBe(cell("B"));
+  });
+
+  it("tells screen readers when generation starts and ends, not every step", async () => {
+    Object.assign(model, { frames: true, step: 2, steps: 4 });
+    hold();
+    render(<App />);
+    drawAll();
+    await clickGenerate();
+    await screen.findByText(/Step 2 of 4/);
+    expect(screen.getByRole("status")).toHaveTextContent("Generating your font…");
+    await act(async () => model.release!());
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(/Done in/));
+  });
+
+  it("locks the pads and the font upload while a run is going", async () => {
+    hold();
+    render(<App />);
+    drawAll();
+    await clickGenerate();
+    expect(screen.getByRole("button", { name: "Clear H" })).toBeDisabled();
+    expect(screen.getByLabelText(/font you already have/i)).toBeDisabled();
+    await act(async () => model.release!());
+    await waitFor(() => expect(screen.getByRole("button", { name: "Clear H" })).toBeEnabled());
+  });
+
+  it("rolls the board back if the font cannot be built", async () => {
+    buildSpy.fail = true;
+    render(<App />);
+    drawAll();
+    await clickGenerate();
+    expect(await screen.findByRole("alert")).toHaveTextContent("could not build the font");
+    expect(cell("A")).toHaveAttribute("data-state", "empty");
+    expect(cell("H")).toHaveAttribute("data-state", "ref");
+    expect(screen.queryByRole("textbox", { name: /font name/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /generate/i })).toBeEnabled();
+  });
+
+  it("traces only the regenerated letter when one letter is tried again", async () => {
+    render(<App />);
+    await fullRun();
+    buildSpy.seen.length = 0;
+    await act(async () => void fireEvent.click(screen.getByRole("button", { name: "Try B again" })));
+    await waitFor(() => expect(buildSpy.seen).toHaveLength(1));
+    expect(buildSpy.seen[0]).toBe("outline/final");
+  });
+
+  it("says it is waiting for the model, not 'starting from noise', while the model downloads", async () => {
+    hold();
+    render(<App />);
+    drawAll();
+    await clickGenerate();
+    expect(screen.getByText("Waiting for the model to download…")).toBeInTheDocument();
+    expect(screen.queryByText(/starting from noise/i)).toBeNull();
+    await act(async () => model.release!());
+  });
+
+  it("says it is reading the five letters once the model is ready, before the first step", async () => {
+    render(<App />);
+    await act(async () => warm.release?.());
+    hold();
+    drawAll();
+    await clickGenerate();
+    expect(screen.getByText("Reading your five letters…")).toBeInTheDocument();
+    await act(async () => model.release!());
   });
 });

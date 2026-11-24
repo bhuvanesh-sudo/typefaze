@@ -32,7 +32,8 @@ export function cellView(i: number, s: BoardState): CellView {
     if (s.frame && k >= 0) return { kind: "step", bitmap: s.frame.glyphs[k], step: s.frame.step, steps: s.frame.steps };
     return { kind: "pending" };
   }
-  if (s.glyphs) return { kind: "final", bitmap: s.glyphs[i], outline: s.phase === "tracing" };
+  // While tracing, outline the slots that were just generated (all of them for a full run).
+  if (s.glyphs) return { kind: "final", bitmap: s.glyphs[i], outline: s.phase === "tracing" && (!s.running || s.running.includes(i)) };
   if (ref) return { kind: "ref", bitmap: ref };
   return { kind: "empty" };
 }
