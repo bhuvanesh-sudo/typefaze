@@ -21,6 +21,10 @@ export type OnnxGenerator = Generator & {
 };
 
 const PIX = SIZE * SIZE;
+const clamp1 = (v: number) => Math.max(-1, Math.min(1, v));
+
+/** The current image of every glyph being generated, after one Euler step. `glyphs[k]` is a copy for `chars[k]`. */
+export type StepFrame = { step: number; steps: number; chars: number[]; glyphs: GlyphBitmap[] };
 
 /** Seeded standard-normal noise (mulberry32 + Box–Muller). */
 export function seededNormal(n: number, seed: number): Float32Array {
@@ -48,6 +52,8 @@ export function createOnnxGenerator(opts: {
   hasWebGPU: () => boolean;
   baseUrl?: string;
   onProgress?: (done: number, total: number) => void;
+  /** Called after every step with the current images; the sampler waits for it, so the page can paint each frame. */
+  onFrame?: (frame: StepFrame) => void | Promise<void>;
 }): OnnxGenerator {
   const base = opts.baseUrl ?? "";
   let backend: Backend | null = null;
@@ -118,9 +124,13 @@ export function createOnnxGenerator(opts: {
         for (let i = 0; i < x.length; i++) x[i] += dt * v[i];
       }
       opts.onProgress?.(s + 1, steps);
+      if (opts.onFrame) {
+        const glyphs = chars.map((_, k) => x.slice(k * PIX, (k + 1) * PIX).map(clamp1));
+        await opts.onFrame({ step: s + 1, steps, chars: [...chars], glyphs });
+      }
     }
     const out: GlyphBitmap[] = [];
-    for (let i = 0; i < n; i++) out.push(x.slice(i * PIX, (i + 1) * PIX).map((v) => Math.max(-1, Math.min(1, v))));
+    for (let i = 0; i < n; i++) out.push(x.slice(i * PIX, (i + 1) * PIX).map(clamp1));
     return out;
   }) as OnnxGenerator;
   gen.backend = () => backend;
@@ -132,6 +142,7 @@ export function createOnnxGenerator(opts: {
 export function createBrowserOnnxGenerator(
   onProgress?: (done: number, total: number) => void,
   onDownload?: (loaded: number, total: number | null) => void,
+  onFrame?: (frame: StepFrame) => void | Promise<void>,
 ): OnnxGenerator {
   const base = import.meta.env.BASE_URL;
   // Model files are downloaded once (a WebGPU -> WASM fallback reuses the bytes), and progress is
@@ -160,6 +171,7 @@ export function createBrowserOnnxGenerator(
   return createOnnxGenerator({
     baseUrl: base,
     onProgress,
+    onFrame,
     hasWebGPU: () => typeof navigator !== "undefined" && "gpu" in navigator,
     loadAssets: async () => {
       const [meta, nul] = await Promise.all([fetch(`${base}models/meta.json`), fetch(`${base}models/null_style.bin`)]);

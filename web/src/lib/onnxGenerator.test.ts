@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createOnnxGenerator, seededNormal, type SessionLike } from "./onnxGenerator";
+import { createOnnxGenerator, seededNormal, type SessionLike, type StepFrame } from "./onnxGenerator";
 import { REF_CHARS, type RefSet } from "./glyphs";
 
 const refs = Object.fromEntries(REF_CHARS.map((c) => [c, new Float32Array(4096).fill(-1)])) as RefSet;
@@ -130,5 +130,51 @@ describe("onnxGenerator", () => {
     const sd = Math.sqrt(a.reduce((s, v) => s + (v - mean) ** 2, 0) / a.length);
     expect(Math.abs(mean)).toBeLessThan(0.1);
     expect(Math.abs(sd - 1)).toBeLessThan(0.1);
+  });
+
+  describe("step frames", () => {
+    const make = (onFrame: (f: StepFrame) => void | Promise<void>, a = assets, session = fakeSession) =>
+      createOnnxGenerator({ hasWebGPU: () => false, loadAssets: a, createSession: async (url) => session(url), onFrame });
+
+    it("emits one frame per step with copies of the current glyphs", async () => {
+      const frames: StepFrame[] = [];
+      await make((f) => void frames.push(f))(refs);
+      expect(frames).toHaveLength(4);
+      expect(frames[0]).toMatchObject({ step: 1, steps: 4 });
+      expect(frames[0].chars).toHaveLength(52);
+      expect(frames[0].glyphs).toHaveLength(52);
+      expect(frames[0].glyphs[0]).toHaveLength(4096);
+      expect(frames[0].glyphs[0]).not.toEqual(frames[3].glyphs[0]);
+    });
+
+    it("frames follow the requested chars", async () => {
+      const frames: StepFrame[] = [];
+      await make((f) => void frames.push(f))(refs, [3, 7]);
+      expect(frames.length).toBeGreaterThan(0);
+      for (const f of frames) {
+        expect(f.chars).toEqual([3, 7]);
+        expect(f.glyphs).toHaveLength(2);
+      }
+    });
+
+    it("works with any step count", async () => {
+      const frames: StepFrame[] = [];
+      await make((f) => void frames.push(f), async () => ({ nullStyle: new Float32Array(256), steps: 12, wasmSteps: 1, cfg: 1 }))(refs, [0]);
+      expect(frames).toHaveLength(1);
+      expect(frames[0]).toMatchObject({ step: 1, steps: 1 });
+    });
+
+    it("waits for the frame handler before the next step", async () => {
+      const order: string[] = [];
+      const session = (url: string): SessionLike => {
+        const s = fakeSession(url);
+        return { run: async (f) => (url.endsWith("unet.onnx") && order.push("run"), s.run(f)) };
+      };
+      await make(async () => {
+        await new Promise((r) => setTimeout(r, 5));
+        order.push("frame");
+      }, assets, session)(refs, [0]);
+      expect(order).toEqual(["run", "frame", "run", "frame", "run", "frame", "run", "frame"]);
+    });
   });
 });
