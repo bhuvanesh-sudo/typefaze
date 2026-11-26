@@ -132,6 +132,76 @@ describe("onnxGenerator", () => {
     expect(Math.abs(sd - 1)).toBeLessThan(0.1);
   });
 
+  describe("v2 model (reference tokens, fixed batch)", () => {
+    const TOK = 320 * 128;
+    type Feeds = Record<string, { data: unknown; dims: readonly number[] }>;
+    const v2Assets = (cfg = 1) => async () => ({
+      arch: "v2" as const, batch: 52, nullStyle: new Float32Array(256).fill(-7), nullTokens: new Float32Array(TOK).fill(-3),
+      steps: 1, wasmSteps: 1, cfg,
+    });
+    const v2Session = (seen: Feeds[]) => (url: string): SessionLike => ({
+      async run(feeds): Promise<Record<string, { data: Float32Array; dims: number[] }>> {
+        if (url.endsWith("encoder.onnx"))
+          return { style: { data: new Float32Array(256).fill(0.1), dims: [1, 256] }, tokens: { data: new Float32Array(TOK).fill(0.2), dims: [1, 320, 128] } };
+        seen.push(feeds as Feeds);
+        const n = (feeds.x_t.dims as number[])[0];
+        const tok = (feeds.tokens.data as Float32Array)[0];
+        return { v: { data: new Float32Array(n * 4096).fill(tok === -3 ? 0.25 : 0.5), dims: [n, 1, 64, 64] } };
+      },
+    });
+
+    it("v2: feeds tokens and pads to batch 52", async () => {
+      const seen: Feeds[] = [];
+      const gen = createOnnxGenerator({ hasWebGPU: () => false, loadAssets: v2Assets(), createSession: async (u) => v2Session(seen)(u) });
+      const out = await gen(refs, [3, 7, 9]);
+      expect(out).toHaveLength(3);
+      expect(seen).toHaveLength(1);
+      expect(seen[0].tokens.dims).toEqual([1, 320, 128]);
+      expect(seen[0].x_t.dims[0]).toBe(52);
+      expect(seen[0].style.dims).toEqual([52, 256]);
+      expect((seen[0].char_id.data as BigInt64Array).slice(0, 3)).toEqual(BigInt64Array.from([3n, 7n, 9n]));
+    });
+
+    it("v2: guidance uses null tokens and null style", async () => {
+      const seen: Feeds[] = [];
+      const gen = createOnnxGenerator({ hasWebGPU: () => false, loadAssets: v2Assets(2), createSession: async (u) => v2Session(seen)(u) });
+      const [g] = await gen(refs, [0]);
+      expect(seen).toHaveLength(2);
+      const uncond = seen.find((f) => (f.tokens.data as Float32Array)[0] === -3)!;
+      expect(uncond).toBeDefined();
+      expect((uncond.style.data as Float32Array)[0]).toBe(-7);
+      const noise = seededNormal(52 * 4096, 1000);
+      for (const i of [0, 100, 4095]) expect(g[i]).toBeCloseTo(Math.max(-1, Math.min(1, noise[i] + 0.75)), 5);
+    });
+
+    it("v1 model still runs: no tokens fed and no padding", async () => {
+      const seen: Feeds[] = [];
+      const gen = createOnnxGenerator({
+        hasWebGPU: () => false, loadAssets: assets,
+        createSession: async (url) => {
+          const s = fakeSession(url);
+          return { run: async (f) => (url.endsWith("unet.onnx") && seen.push(f as Feeds), s.run(f)) };
+        },
+      });
+      expect(await gen(refs, [0, 1])).toHaveLength(2);
+      for (const f of seen) {
+        expect(f.tokens).toBeUndefined();
+        expect(f.x_t.dims[0]).toBe(2);
+      }
+    });
+
+    it("frames report only requested letters when padded", async () => {
+      const frames: StepFrame[] = [];
+      const gen = createOnnxGenerator({
+        hasWebGPU: () => false, loadAssets: v2Assets(), createSession: async (u) => v2Session([])(u), onFrame: (f) => void frames.push(f),
+      });
+      await gen(refs, [4, 5]);
+      expect(frames).toHaveLength(1);
+      expect(frames[0].chars).toEqual([4, 5]);
+      expect(frames[0].glyphs).toHaveLength(2);
+    });
+  });
+
   describe("step frames", () => {
     const make = (onFrame: (f: StepFrame) => void | Promise<void>, a = assets, session = fakeSession) =>
       createOnnxGenerator({ hasWebGPU: () => false, loadAssets: a, createSession: async (url) => session(url), onFrame });

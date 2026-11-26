@@ -12,7 +12,18 @@ export interface SessionLike {
   run(feeds: Record<string, TensorLike>): Promise<Record<string, TensorLike>>;
 }
 export type SessionFactory = (url: string, ep: Backend) => Promise<SessionLike>;
-type Assets = { nullStyle: Float32Array; steps: number; wasmSteps: number; cfg: number };
+type Assets = {
+  nullStyle: Float32Array;
+  steps: number;
+  wasmSteps: number;
+  cfg: number;
+  /** "v2": the encoder also returns per-reference tokens that the U-Net cross-attends to. Absent = v1. */
+  arch?: "v2";
+  /** Fixed U-Net batch the model was exported with; requests are padded up to it. Absent = any batch. */
+  batch?: number;
+  /** v2 only: the learned "no references" tokens, used for the unguided half of classifier-free guidance. */
+  nullTokens?: Float32Array;
+};
 
 export type OnnxGenerator = Generator & {
   backend: () => Backend | null;
@@ -91,37 +102,52 @@ export function createOnnxGenerator(opts: {
 
     const refData = new Float32Array(5 * PIX);
     REF_CHARS.forEach((c, k) => refData.set(refs[c], k * PIX));
-    const { style } = await enc.run({
+    const { style, tokens } = await enc.run({
       refs: { data: refData, dims: [1, 5, 1, SIZE, SIZE] },
       ref_ids: { data: BigInt64Array.from(REF_CHARS.map((c) => BigInt(charId(c)))), dims: [1, 5] },
       ref_mask: { data: new Uint8Array(5).fill(1), dims: [1, 5] },
     });
+    const v2 = assets.arch === "v2";
+    if (v2 && (!tokens || !assets.nullTokens)) throw new Error("v2 model is missing its reference tokens");
+    // A model exported with a fixed batch only accepts exactly that many letters, so pad the request
+    // with dummy letters (id 0) and drop them afterwards. A v1 model without a fixed batch takes any size.
     const n = chars.length;
-    const styleB = new Float32Array(n * 256);
-    const nullB = new Float32Array(n * 256);
-    for (let i = 0; i < n; i++) {
+    const nb = assets.batch ? Math.ceil(n / assets.batch) * assets.batch : n;
+    const styleB = new Float32Array(nb * 256);
+    const nullB = new Float32Array(nb * 256);
+    for (let i = 0; i < nb; i++) {
       styleB.set(style.data as Float32Array, i * 256);
       nullB.set(assets.nullStyle, i * 256);
     }
-    const ids = BigInt64Array.from(chars.map(BigInt));
-    const x = seededNormal(n * PIX, seed);
+    const ids = BigInt64Array.from([...chars, ...new Array(nb - n).fill(0)].map(BigInt));
+    const x = seededNormal(nb * PIX, seed);
+    const chunk = assets.batch ?? nb;
+    // Tokens have batch 1; the model broadcasts them across every letter.
+    const tokDims = tokens?.dims ?? [];
     // Flow-matching paths are nearly straight, so the slow CPU fallback can take fewer, bigger steps.
     const steps = backend === "wasm" ? assets.wasmSteps : assets.steps;
     const dt = 1 / steps;
     for (let s = 0; s < steps; s++) {
-      const t = new Float32Array(n).fill(s * dt);
-      const feeds = (st: Float32Array) => ({
-        x_t: { data: x, dims: [n, 1, SIZE, SIZE] },
-        t: { data: t, dims: [n] },
-        char_id: { data: ids, dims: [n] },
-        style: { data: st, dims: [n, 256] },
-      });
-      const v = (await unet.run(feeds(styleB))).v.data as Float32Array;
-      if (assets.cfg !== 1) {
-        const vn = (await unet.run(feeds(nullB))).v.data as Float32Array;
-        for (let i = 0; i < x.length; i++) x[i] += dt * (vn[i] + assets.cfg * (v[i] - vn[i]));
-      } else {
-        for (let i = 0; i < x.length; i++) x[i] += dt * v[i];
+      const t = new Float32Array(chunk).fill(s * dt);
+      for (let c0 = 0; c0 < nb; c0 += chunk) {
+        const xs = x.subarray(c0 * PIX, (c0 + chunk) * PIX);
+        const feeds = (st: Float32Array, tok: Float32Array | undefined): Record<string, TensorLike> => {
+          const f: Record<string, TensorLike> = {
+            x_t: { data: xs, dims: [chunk, 1, SIZE, SIZE] },
+            t: { data: t, dims: [chunk] },
+            char_id: { data: ids.subarray(c0, c0 + chunk), dims: [chunk] },
+            style: { data: st.subarray(c0 * 256, (c0 + chunk) * 256), dims: [chunk, 256] },
+          };
+          if (v2) f.tokens = { data: tok!, dims: tokDims };
+          return f;
+        };
+        const v = (await unet.run(feeds(styleB, tokens?.data as Float32Array | undefined))).v.data as Float32Array;
+        if (assets.cfg !== 1) {
+          const vn = (await unet.run(feeds(nullB, assets.nullTokens))).v.data as Float32Array;
+          for (let i = 0; i < xs.length; i++) xs[i] += dt * (vn[i] + assets.cfg * (v[i] - vn[i]));
+        } else {
+          for (let i = 0; i < xs.length; i++) xs[i] += dt * v[i];
+        }
       }
       opts.onProgress?.(s + 1, steps);
       if (opts.onFrame) {
@@ -176,8 +202,15 @@ export function createBrowserOnnxGenerator(
     loadAssets: async () => {
       const [meta, nul] = await Promise.all([fetch(`${base}models/meta.json`), fetch(`${base}models/null_style.bin`)]);
       if (!meta.ok || !nul.ok) throw new Error("Could not download the model");
-      const m = (await meta.json()) as { steps: number; wasmSteps?: number; cfg: number };
-      return { nullStyle: new Float32Array(await nul.arrayBuffer()), steps: m.steps, wasmSteps: m.wasmSteps ?? m.steps, cfg: m.cfg };
+      const m = (await meta.json()) as { steps: number; wasmSteps?: number; cfg: number; arch?: string; batch?: number };
+      const assets: Assets = { nullStyle: new Float32Array(await nul.arrayBuffer()), steps: m.steps, wasmSteps: m.wasmSteps ?? m.steps, cfg: m.cfg, batch: m.batch };
+      if (m.arch === "v2") {
+        const nt = await fetch(`${base}models/null_tokens.bin`);
+        if (!nt.ok) throw new Error("Could not download the model");
+        assets.arch = "v2";
+        assets.nullTokens = new Float32Array(await nt.arrayBuffer());
+      }
+      return assets;
     },
     createSession: async (url, ep) => {
       const ort = await import("onnxruntime-web/webgpu");

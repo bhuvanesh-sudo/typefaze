@@ -13,7 +13,12 @@ it.runIf(process.env.TYPEFAZE_REAL)("trained model runs through the TS sampler (
   const refs = Object.fromEntries(REF_CHARS.map((c) => [c, Float32Array.from(exp[c], (v) => v / 127.5 - 1)])) as RefSet;
   const gen = createOnnxGenerator({
     hasWebGPU: () => false,
-    loadAssets: async () => ({ nullStyle: (() => { const b = readFileSync(`${M}/null_style.bin`); return new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)); })(), steps: 12, wasmSteps: 4, cfg: 1 }),
+    loadAssets: async () => {
+      const f32 = (name: string) => { const b = readFileSync(`${M}/${name}`); return new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)); };
+      const meta = JSON.parse(readFileSync(`${M}/meta.json`, "utf8")) as { arch?: string; batch?: number; cfg?: number };
+      const v2 = meta.arch === "v2";
+      return { nullStyle: f32("null_style.bin"), steps: 12, wasmSteps: 4, cfg: meta.cfg ?? 1, batch: meta.batch, ...(v2 ? { arch: "v2" as const, nullTokens: f32("null_tokens.bin") } : {}) };
+    },
     createSession: async (url) => {
       const s = await ort.InferenceSession.create(resolve(M, url.split("/").pop()!), { executionProviders: ["wasm"] });
       return {
