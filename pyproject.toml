@@ -12,11 +12,13 @@ dependencies = [
     "fonttools>=4.40",
     "torch>=2.1",
     "tqdm",
+    "scipy",
+    "scikit-image",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest"]
-export = ["onnx", "onnxruntime"]
+export = ["onnx", "onnxruntime", "onnxsim", "onnxscript"]
 
 [tool.setuptools]
 packages = ["typefaze"]

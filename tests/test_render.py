@@ -44,3 +44,11 @@ def test_missing_glyph_returns_none(tmp_path):
     p = tmp_path / "bad.ttf"
     p.write_bytes(b"nope")
     assert render_font(str(p)) is None
+
+
+def test_render_respects_max_clipped(monkeypatch):
+    import typefaze.render as R
+
+    monkeypatch.setattr(R, "EM_PX", 80)  # oversized letters poke out of the 64x64 box
+    assert R.render_font(FIXTURE, max_clipped=0.02) is None
+    assert R.render_font(FIXTURE, max_clipped=0.5) is not None

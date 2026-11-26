@@ -63,3 +63,35 @@ def test_dataset_item_shapes_and_no_target_in_refs(built):
         for t in (item["refs"], item["target"]):
             assert t.min() >= -1 and t.max() <= 1
     assert saw_fixed
+
+
+def test_family_category_reads_metadata(tmp_path):
+    from typefaze.data import family_category
+
+    (tmp_path / "hw").mkdir()
+    (tmp_path / "hw" / "METADATA.pb").write_text('name: "Hw"\ncategory: "HANDWRITING"\n')
+    (tmp_path / "none").mkdir()
+    assert family_category(tmp_path / "hw") == "HANDWRITING"
+    assert family_category(tmp_path / "none") == "UNKNOWN"
+
+
+def test_handwriting_gets_relaxed_clip(tmp_path, monkeypatch):
+    import numpy as np
+    import typefaze.data as D
+
+    calls = {}
+
+    def fake_render(path, max_clipped=0.02):
+        calls[Path(path).parent.name] = max_clipped
+        return np.zeros((52, 64, 64), np.uint8)
+
+    monkeypatch.setattr(D, "render_font", fake_render)
+    for fam, cat in (("hw", "HANDWRITING"), ("sans", "SANS_SERIF")):
+        (tmp_path / "ofl" / fam).mkdir(parents=True)
+        (tmp_path / "ofl" / fam / "A.ttf").write_bytes(b"x")
+        (tmp_path / "ofl" / fam / "METADATA.pb").write_text(f'category: "{cat}"\n')
+    counts = D.build_dataset(str(tmp_path / "ofl"), str(tmp_path / "out"), handwriting_clip=0.06)
+    assert calls == {"hw": 0.06, "sans": 0.02}
+    m = json.loads((tmp_path / "out" / "manifest.json").read_text())
+    assert {f["family"]: f["category"] for f in m["fonts"]} == {"hw": "HANDWRITING", "sans": "SANS_SERIF"}
+    assert counts["handwriting_kept"] == 1

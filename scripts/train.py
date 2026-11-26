@@ -17,10 +17,13 @@ import torch
 from PIL import Image
 from torch.utils.data import DataLoader
 
-from typefaze.data import GlyphDataset, to_model_space
+from typefaze.data import GlyphDataset, GlyphDatasetV2, handwriting_weights, to_model_space
+from typefaze.elements import HELDOUT_FAMILIES, TRAIN_FAMILIES, Recipe, apply_recipe, sample_element
 from typefaze.flow import flow_matching_loss, sample, save_checkpoint
 from typefaze.glyphs import CHARS, REF_CHARS, char_id
+from typefaze.flow import encode
 from typefaze.model import GlyphUNet, StyleEncoder
+from typefaze.model_v2 import GlyphUNetV2, RefTokenEncoder
 
 
 def find_file(root: Path, name: str) -> Path:
@@ -39,25 +42,47 @@ def update_ema(ema: torch.nn.Module, model: torch.nn.Module, decay: float) -> No
 
 
 @torch.no_grad()
-def sample_grid(unet, enc, glyphs: np.ndarray, device, path: Path, steps: int = 12) -> None:
-    """Rows = fonts. Each row: the 5 reference letters, a gap, then generated A–Z a–z."""
+def sample_grid(unet, enc, preview: list[tuple[np.ndarray, str]], device, path: Path, steps: int = 12) -> None:
+    """Rows = fonts. Each row: a label strip, the 5 reference letters, a gap, then generated A–Z a–z."""
+    from PIL import ImageDraw
+
     unet.eval(), enc.eval()
     ref_ids = [char_id(c) for c in REF_CHARS]
     rows = []
-    for g in glyphs:
-        refs = torch.full((1, 8, 1, 64, 64), -1.0)
-        refs[0, :5, 0] = to_model_space(g[ref_ids])
-        ids = torch.zeros(1, 8, dtype=torch.long)
-        ids[0, :5] = torch.tensor(ref_ids)
-        mask = torch.zeros(1, 8, dtype=torch.bool)
-        mask[0, :5] = True
-        style = enc(refs.to(device), ids.to(device), mask.to(device)).expand(len(CHARS), -1)
-        gen = sample(unet, style, torch.arange(len(CHARS), device=device), steps=steps,
+    for g, label in preview:
+        batch = {
+            "refs": torch.full((1, 8, 1, 64, 64), -1.0),
+            "ref_ids": torch.zeros(1, 8, dtype=torch.long),
+            "ref_mask": torch.zeros(1, 8, dtype=torch.bool),
+        }
+        batch["refs"][0, :5, 0] = to_model_space(g[ref_ids])
+        batch["ref_ids"][0, :5] = torch.tensor(ref_ids)
+        batch["ref_mask"][0, :5] = True
+        cond = encode(unet, enc, {k: v.to(device) for k, v in batch.items()}, augment=False)
+        cond["style"] = cond["style"].expand(len(CHARS), -1)
+        gen = sample(unet, cond, torch.arange(len(CHARS), device=device), steps=steps,
                      generator=torch.Generator(device=device).manual_seed(0))
         gen = ((gen[:, 0].cpu().numpy() + 1) * 127.5).astype(np.uint8)
+        tag = Image.new("L", (110, 64), 30)
+        ImageDraw.Draw(tag).text((4, 26), label[:18], fill=220)
         gap = np.full((64, 16), 60, np.uint8)
-        rows.append(np.concatenate([*g[ref_ids], gap, *gen], axis=1))
+        rows.append(np.concatenate([np.asarray(tag), *g[ref_ids], gap, *gen], axis=1))
     Image.fromarray(np.concatenate(rows, axis=0)).save(path)
+
+
+def make_preview(glyphs: np.ndarray, arch: str) -> list[tuple[np.ndarray, str]]:
+    """v1: 8 plain fonts. v2: 4 plain, 4 with a training element, 2 with a held-out element (marked *)."""
+    if arch == "v1":
+        return [(g, "plain") for g in glyphs[:8]]
+    rng = np.random.default_rng(0)
+    out = [(g, "plain") for g in glyphs[:4]]
+    for i, g in enumerate(glyphs[4:8]):
+        el = sample_element(TRAIN_FAMILIES[(i * 3) % len(TRAIN_FAMILIES)], rng)
+        out.append((apply_recipe(g, Recipe((el,), None)), el[0]))
+    for i, g in enumerate(glyphs[8:10]):
+        el = sample_element(HELDOUT_FAMILIES[i], rng)
+        out.append((apply_recipe(g, Recipe((el,), None)), el[0] + " *"))
+    return out
 
 
 def main() -> None:
@@ -71,6 +96,8 @@ def main() -> None:
     ap.add_argument("--ckpt-minutes", type=float, default=20.0)
     ap.add_argument("--resume", default=None)
     ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--arch", choices=["v1", "v2"], default="v1")
+    ap.add_argument("--grid-steps", type=int, default=12, help="sampling steps for the preview grid")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -80,14 +107,21 @@ def main() -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
 
-    ds = GlyphDataset(str(npz), str(manifest), "train")
+    if args.arch == "v2":
+        ds = GlyphDatasetV2(str(npz), str(manifest), "train")
+        sampler = torch.utils.data.WeightedRandomSampler(handwriting_weights(str(manifest), "train"), len(ds))
+    else:
+        ds, sampler = GlyphDataset(str(npz), str(manifest), "train"), None
     val = GlyphDataset(str(npz), str(manifest), "val")
-    preview = (val.glyphs if len(val) else ds.glyphs)[:8]
+    preview = make_preview((val.glyphs if len(val) else ds.glyphs)[:10], args.arch)
     print(f"train fonts: {len(ds)}, val fonts: {len(val)}")
-    dl = DataLoader(ds, batch_size=args.batch, shuffle=True, num_workers=args.workers,
+    dl = DataLoader(ds, batch_size=args.batch, shuffle=sampler is None, sampler=sampler, num_workers=args.workers,
                     drop_last=len(ds) >= args.batch, persistent_workers=args.workers > 0)
 
-    unet, enc = GlyphUNet().to(device), StyleEncoder().to(device)
+    if args.arch == "v2":
+        unet, enc = GlyphUNetV2().to(device), RefTokenEncoder().to(device)
+    else:
+        unet, enc = GlyphUNet().to(device), StyleEncoder().to(device)
     params = list(unet.parameters()) + list(enc.parameters())
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=0.01)
     use_amp = device.type == "cuda"
@@ -110,7 +144,7 @@ def main() -> None:
                         ema_unet=ema_unet.state_dict(), ema_encoder=ema_enc.state_dict(),
                         optimizer=opt.state_dict(), scaler=scaler.state_dict())
         save_checkpoint(str(out / "ckpt_ema.pt"), ema_unet, ema_enc, step, config)
-        sample_grid(ema_unet, ema_enc, preview, device, out / f"samples_{step:07d}.png")
+        sample_grid(ema_unet, ema_enc, preview, device, out / f"samples_{step:07d}.png", steps=args.grid_steps)
         print(f"[{time.strftime('%H:%M:%S')}] checkpoint at step {step}", flush=True)
 
     start = last_ckpt = time.time()
@@ -119,7 +153,7 @@ def main() -> None:
     while not done:
         for batch in dl:
             unet.train(), enc.train()
-            batch = {k: v.to(device, non_blocking=True) for k, v in batch.items()}
+            batch = {k: v.to(device, non_blocking=True) for k, v in batch.items() if torch.is_tensor(v)}
             with torch.autocast(device.type, dtype=torch.float16, enabled=use_amp):
                 loss = flow_matching_loss(unet, enc, batch)
             opt.zero_grad(set_to_none=True)

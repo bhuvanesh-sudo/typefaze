@@ -65,3 +65,58 @@ To run overnight, use **Save Version → Save & Run All (commit)**. That runs in
 ```
 
 **When it finishes:** from the version's Output, create a private dataset `typefaze-ckpt` containing `ckpt_ema.pt` plus the last few `samples_*.png`.
+
+---
+
+# v2: element-carrying, cursive-leaning model
+
+## Notebook 3: build the v2 dataset (~5 min, no GPU)
+
+Same as Notebook 1, with two changes: the checkout also fetches each family's `METADATA.pb` (its Google Fonts category), and handwriting fonts get a looser clipping limit so script fonts with swashes are kept.
+
+**Cell 1: fonts and metadata**
+```bash
+!rm -rf /kaggle/temp/fonts
+!git clone --depth 1 --filter=blob:none --sparse https://github.com/google/fonts /kaggle/temp/fonts
+!cd /kaggle/temp/fonts && git sparse-checkout set --no-cone '/ofl/*/*.ttf' '/ofl/*/*.otf' '/ofl/*/METADATA.pb'
+```
+
+**Cell 2: install TypeFaze**
+```bash
+!rm -rf /kaggle/temp/typefaze
+!git clone https://github.com/bhuvanesh-sudo/typefaze /kaggle/temp/typefaze
+!pip install -q -e /kaggle/temp/typefaze
+```
+
+**Cell 3: render**
+```bash
+!cd /kaggle/temp/typefaze && python scripts/build_dataset.py --ofl /kaggle/temp/fonts/ofl --out /kaggle/working/typefaze-data-v2 --handwriting-clip 0.06
+```
+Expected counts: about `kept` 3,588, `handwriting_kept` 310, and a split of about 3,258 / 196 / 134. Send them to Claude.
+
+**Cell 4: publish.** Save & Run All, then turn the output into a private dataset named `typefaze-data-v2`.
+
+## Notebook 4: train v2 (GPU, ~11 h per session)
+
+Settings: GPU T4 x1 (or P100), Internet on. Add Input → `typefaze-data-v2`.
+
+**Cell 1: install** (the same as Cell 2 above)
+
+**Cell 2: train**
+```bash
+!cd /kaggle/temp/typefaze && python scripts/train.py --arch v2 --data /kaggle/input/typefaze-data-v2 --out /kaggle/working/run-v2 --max-hours 11 --ckpt-minutes 20 --workers 4
+```
+`--workers 4` matters: v2 draws its decorations on the fly, so it needs Kaggle's CPU cores to keep the GPU busy. If the `--data` path isn't found, run `!find /kaggle/input -name glyphs.npz` and point `--data` at the folder above it, as before.
+
+**What to watch:**
+- loss lines every 100 steps, trending down;
+- `samples_*.png` every 20 minutes. Each row is labelled:
+  - `plain`: no element;
+  - a training element name;
+  - a name ending in ` *`: an element the model **never trained on**. Those two rows are the interesting ones.
+
+**Run it overnight:** Save Version → Save & Run All (Commit).
+
+**Second session (optional, if the first session's grids are still improving):** add the first run's output as an input and append `--resume /kaggle/input/<previous-output>/run-v2/ckpt_latest.pt`.
+
+**When done:** download `run-v2/ckpt_ema.pt` (and the last couple of sample grids) and put them in `C:\Projects\typefaze\runs\v2\`.

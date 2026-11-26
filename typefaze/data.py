@@ -14,6 +14,18 @@ from .glyphs import CHARS, REF_CHARS, char_id
 from .render import render_font
 
 FONT_EXTS = {".ttf", ".otf"}
+HANDWRITING = "HANDWRITING"
+
+
+def family_category(family_dir: Path) -> str:
+    """Google Fonts category from the family's METADATA.pb, e.g. "HANDWRITING"; "UNKNOWN" if absent."""
+    meta = Path(family_dir) / "METADATA.pb"
+    if not meta.exists():
+        return "UNKNOWN"
+    import re
+
+    m = re.search(r'category:\s*"([A-Z_]+)"', meta.read_text(encoding="utf8", errors="ignore"))
+    return m.group(1) if m else "UNKNOWN"
 MAX_REFS = 8
 
 
@@ -30,12 +42,17 @@ def split_families(families: list[str], seed: int = 0) -> dict[str, list[str]]:
     }
 
 
-def build_dataset(ofl_dir: str, out_dir: str, progress: bool = False) -> dict:
-    """Render every font under ofl_dir/<family>/ and write glyphs.npz + manifest.json."""
+def build_dataset(ofl_dir: str, out_dir: str, progress: bool = False, handwriting_clip: float = 0.06) -> dict:
+    """Render every font under ofl_dir/<family>/ and write glyphs.npz + manifest.json.
+
+    Handwriting/script families get a looser clipping limit, because their swashes often poke
+    slightly out of the box and the 2% default rejected about a third of them.
+    """
     root = Path(ofl_dir)
     fam_dirs = sorted(p for p in root.iterdir() if p.is_dir())
     splits = split_families([p.name for p in fam_dirs])
     split_of = {f: s for s, fs in splits.items() for f in fs}
+    category = {d.name: family_category(d) for d in fam_dirs}
 
     files = [(d.name, f) for d in fam_dirs for f in sorted(d.iterdir()) if f.suffix.lower() in FONT_EXTS]
     if progress:
@@ -45,12 +62,14 @@ def build_dataset(ofl_dir: str, out_dir: str, progress: bool = False) -> dict:
 
     glyphs, fonts, skipped = [], [], []
     for family, f in files:
-        g = render_font(str(f))
+        limit = handwriting_clip if category[family] == HANDWRITING else 0.02
+        g = render_font(str(f), max_clipped=limit)
         if g is None:
             skipped.append(str(f.relative_to(root)))
             continue
         glyphs.append(g)
-        fonts.append({"file": str(f.relative_to(root)), "family": family, "split": split_of[family]})
+        fonts.append({"file": str(f.relative_to(root)), "family": family, "split": split_of[family],
+                      "category": category[family]})
 
     families = sorted({f["family"] for f in fonts})
     fam_index = {f: i for i, f in enumerate(families)}
@@ -65,6 +84,7 @@ def build_dataset(ofl_dir: str, out_dir: str, progress: bool = False) -> dict:
     counts = {
         "kept": len(fonts),
         "skipped": len(skipped),
+        "handwriting_kept": sum(f["category"] == HANDWRITING for f in fonts),
         **{f"{s}_fonts": sum(f["split"] == s for f in fonts) for s in ("train", "val", "test")},
     }
     manifest = {"fonts": fonts, "families": families, "counts": counts, "skipped_files": skipped}
@@ -115,4 +135,64 @@ class GlyphDataset(Dataset):
             "ref_mask": mask,
             "target": to_model_space(g[target])[None],
             "target_id": torch.tensor(target, dtype=torch.long),
+        }
+
+
+# ---------------------------------------------------------------- v2: whole-font element recipes
+
+from .elements import TRAIN_FAMILIES, apply_recipe, sample_recipe  # noqa: E402
+
+
+def handwriting_weights(manifest_path: str, split: str, factor: float = 4.0) -> torch.Tensor:
+    """Per-font sampling weights for a WeightedRandomSampler: HANDWRITING fonts count `factor` times."""
+    fonts = [f for f in json.loads(Path(manifest_path).read_text())["fonts"] if f["split"] == split]
+    return torch.tensor([factor if f.get("category") == HANDWRITING else 1.0 for f in fonts], dtype=torch.double)
+
+
+class GlyphDatasetV2(GlyphDataset):
+    """Like GlyphDataset, but each item first applies one random element recipe to the whole font,
+    so the references and the target all carry the same element (or all stay plain)."""
+
+    def __init__(self, npz_path: str, manifest_path: str, split: str, k_range: tuple[int, int] = (3, 8),
+                 fixed_ref_prob: float = 0.3, families: tuple[str, ...] = TRAIN_FAMILIES, seed: int | None = None):
+        super().__init__(npz_path, manifest_path, split, k_range, fixed_ref_prob)
+        self.families = families
+        self.seed = seed
+        self._rng: tuple[int, np.random.Generator] | None = None
+
+    def _generator(self) -> np.random.Generator:
+        # one generator per process: forked DataLoader workers must not share a stream
+        import os
+
+        pid = os.getpid()
+        if self._rng is None or self._rng[0] != pid:
+            base = self.seed if self.seed is not None else torch.initial_seed()
+            self._rng = (pid, np.random.default_rng([base % 2**32, pid]))
+        return self._rng[1]
+
+    def __getitem__(self, i: int) -> dict:
+        n = len(CHARS)
+        if random.random() < self.fixed_ref_prob:
+            ref_ids = list(self.fixed_ids)
+            target = random.choice([c for c in range(n) if c not in ref_ids])
+        else:
+            target = random.randrange(n)
+            k = random.randint(*self.k_range)
+            ref_ids = random.sample([c for c in range(n) if c != target], k)
+
+        recipe = sample_recipe(self._generator(), self.families)
+        picked = apply_recipe(self.glyphs[i][ref_ids + [target]], recipe)  # same recipe for every letter
+        refs = torch.full((MAX_REFS, 1, 64, 64), -1.0)
+        refs[:len(ref_ids), 0] = to_model_space(picked[:-1])
+        ids = torch.zeros(MAX_REFS, dtype=torch.long)
+        ids[:len(ref_ids)] = torch.tensor(ref_ids)
+        mask = torch.zeros(MAX_REFS, dtype=torch.bool)
+        mask[:len(ref_ids)] = True
+        return {
+            "refs": refs,
+            "ref_ids": ids,
+            "ref_mask": mask,
+            "target": to_model_space(picked[-1])[None],
+            "target_id": torch.tensor(target, dtype=torch.long),
+            "recipe": recipe.describe(),
         }

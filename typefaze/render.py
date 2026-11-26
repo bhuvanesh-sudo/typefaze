@@ -21,11 +21,11 @@ def _has_all_glyphs(path: str) -> bool:
     return all(ord(c) in cmap for c in CHARS)
 
 
-def render_font(path: str) -> np.ndarray | None:
+def render_font(path: str, max_clipped: float = MAX_CLIPPED_FRACTION) -> np.ndarray | None:
     """Return (52, 64, 64) uint8 bitmaps (0 = paper, 255 = ink), or None.
 
     None means the file can't be read, lacks one of the 52 letters, or more
-    than 2% of its ink falls outside the 64x64 box.
+    than `max_clipped` of its ink falls outside the 64x64 box (2% by default).
     """
     try:
         if not _has_all_glyphs(path):
@@ -53,6 +53,6 @@ def render_font(path: str) -> np.ndarray | None:
         clipped_ink += total - int(inside.sum(dtype=np.int64))
         out[i] = inside
 
-    if total_ink == 0 or clipped_ink / total_ink > MAX_CLIPPED_FRACTION:
+    if total_ink == 0 or clipped_ink / total_ink > max_clipped:
         return None
     return out
