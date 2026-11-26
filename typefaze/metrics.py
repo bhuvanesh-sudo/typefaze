@@ -50,3 +50,12 @@ def family_base(family: str) -> str:
                 f = f[: -len(s)]
                 changed = True
     return re.sub(r"\d+$", "", f)
+
+
+def element_transfer(generated: np.ndarray, decorated: np.ndarray, plain: np.ndarray) -> float:
+    """How much more the generated letters look like the decorated truth than the plain truth.
+
+    Mean over letters of SSIM(gen, decorated) - SSIM(gen, plain). Positive = the element was carried.
+    All arrays (n,64,64) uint8, aligned letter by letter.
+    """
+    return float(np.mean([ssim(g, d) - ssim(g, p) for g, d, p in zip(generated, decorated, plain)]))
